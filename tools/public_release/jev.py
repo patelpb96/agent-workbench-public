@@ -26,8 +26,8 @@ PRICE_PER_TOKEN = 0.042 / 1_000_000
 def fingerprint() -> str:
     return sha(json.dumps({"version": VERSION, "model": MODEL, "questions": QUESTIONS,
                            "threshold": REVIEW_THRESHOLD,
-                           "feed_sha256": sha(Path(__file__).read_bytes()),
-                           "policy_sha256": sha(Path(__file__).with_name("policy.py").read_bytes())}, sort_keys=True))
+                           "feed_sha256": sha(Path(__file__).read_text(encoding="utf-8")),
+                           "policy_sha256": sha(Path(__file__).with_name("policy.py").read_text(encoding="utf-8"))}, sort_keys=True))
 
 
 def line_feed(root: Path, profile: dict, approvals: dict | None = None) -> tuple[dict, list[dict]]:

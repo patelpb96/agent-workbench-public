@@ -175,7 +175,7 @@ function fakeTerminal(command, args) {
     case 'agent_link': {
       const entry = fake.agents.find(a => a.terminal === args.terminal);
       if (!entry) throw { code: 'agent_failed', user_message: 'That terminal was not launched as an agent.', recoverable: true };
-      return fake.linked.includes(args.terminal) ? { state: 'linked', agent: entry.agent, source: '0123456789abcdef' } : { state: 'pending', agent: entry.agent };
+      return fake.linked.includes(args.terminal) ? { state: 'linked', agent: entry.agent, source: '0123456789abcdef', model: 'claude-sonnet-5-5', task: 'Fix the files panel' } : { state: 'pending', agent: entry.agent };
     }
     case 'inspector_map': return fake.mapPayload ?? { generated_ms: Date.now(), sessions: [{ id: '0123456789abcdef', open_calls: 1, open_tools: ['Bash'], tools: [{ name: 'Bash', calls: 4, errors: 1 }, { name: 'Read', calls: 9, errors: 0 }] }], reports: [] };
     case 'inspector_sources': {
@@ -227,6 +227,7 @@ mockIPC(async (command, args) => {
     if ('error' in reply) throw reply.error;
     return reply.ok;
   }
+  if (command === 'owner_name') return 'Test User';
   if (command === 'get_runtime_info') return { interface_version: 1, app_version: globalThis.__awRuntimeVersion ?? 'headless-test', os: 'headless shell stub', providers: [] };
   if (command === 'plugin:window|is_visible') return true;
   if (command === 'plugin:window|is_minimized') return false;

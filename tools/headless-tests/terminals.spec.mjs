@@ -48,6 +48,21 @@ test('Tile all shows 32 terminals at once, side by side without overlap, and pol
   expect(reads, `${reads} reads in 3 s`).toBeLessThan(500); // fixed 70 ms polling would be ~1370
 });
 
+test('the tmux prefix opens and closes the Files panel with f', async ({ page }) => {
+  await openTerminals(page, 1);
+  // The shared fixture starts with Sessions open (most tests drive it); f switches the one panel slot to Files.
+  const files = page.getByRole('complementary', { name: 'Files panel' });
+  await expect(files).toHaveCount(0);
+  await page.locator('.terminal-list li').first().locator('button.pick').click();
+  await page.locator('.pane .xterm').first().click();
+  await page.keyboard.press('Control+b');
+  await page.keyboard.press('f');
+  await expect(files).toBeVisible();
+  await page.keyboard.press('Control+b');
+  await page.keyboard.press('f');
+  await expect(files).toHaveCount(0);
+});
+
 test('splitting, focus keys, dividers and closing work like tmux, and the layout is remembered across a reload', async ({ page }) => {
   await openTerminals(page, 3);
   await expect(panes(page)).toHaveCount(1);
@@ -184,6 +199,12 @@ test('an agent is launched in a terminal, shown in a pane, and its transcript is
   // Back to the terminal view; an ordinary terminal has no switch at all.
   await pane.getByRole('button', { name: 'Terminal', exact: true }).click();
   await expect(pane.locator('.xterm')).toHaveCount(1);
+  // The Model tab and the window title now carry the model from the transcript; the title names the task.
+  await pane.locator('.xterm-helper-textarea').focus();
+  await expect(pane.locator('.picker > button')).toContainText('sonnet-5-5');
+  await expect(page.locator('.title-context')).toContainText('[Pi/sonnet-5-5]');
+  await expect(page.locator('.title-context')).toContainText('* Test User');
+  await expect(page.locator('.title-context')).toContainText('Fix the files panel');
   // Ending the terminal forgets the agent entry.
   await page.locator('.terminal-list li').filter({ hasText: 'Pi · proj' }).getByRole('button', { name: 'End session' }).click();
   await page.locator('.terminal-list li').filter({ hasText: 'Pi · proj' }).getByRole('button', { name: 'Confirm end' }).click();

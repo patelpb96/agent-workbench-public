@@ -17,11 +17,11 @@ Keep a dedicated task handoff. Do not rewrite core agent instructions, dirty wor
 private history, remotes or live sessions. Branch/worktree isolation is for editing;
 **publication must use a physically separate fresh Git object store**.
 
-## 1. Plan with Argon first
+## 1. Plan with Frontier Intelligence first
 
 Read repository instructions/miniskills/status and inspect branch/worktree/dirty
 state. Confirm source ownership and publication authorization. Consult fresh
-no-tools Argon with the disclosure policy, surface inventory, intended refs and
+no-tools Frontier Intelligence with the disclosure policy, surface inventory, intended refs and
 threat model. It cannot see files not supplied or execute tests; record its actual
 scope/verdict. Unavailable review is not approval.
 
@@ -42,6 +42,22 @@ using the included implementation. Use a positive allowlist, not only `.gitignor
 `PUBLIC_README.md` supplies the public README without replacing a private one.
 Never export local agent config, runtime/backup data, private handoffs or review logs.
 Freeze an exact committed dev ref; snapshot it into a NEW external candidate.
+
+### Automatic private staging is not public publication
+
+When authorized, source pushes can refresh a `release-private` branch inside the
+same **private** repository. Use a private-only workflow with an immutable repo-ID
+binding, live visibility checks before export and push, and one fixed source branch
+(currently `main`). Skip superseded pushes, serialize updates, and never force-push.
+Exclude workflow files from this automatic snapshot; keep CI on the source branch.
+Fail on findings, stale media approval, missing secrets or test failures; retain the
+last good private stage. Put profiles/media approvals in encrypted Actions secrets,
+not in a committed audit folder. No automatic live Jev/Luna calls or model promotion.
+
+Updating `public` or a public-facing repository requires a **new explicit user
+instruction**, independent artifact review and the publication gates below. Private
+staging passing is not public approval. Do not upload the local private evidence
+folder, change repository visibility, or auto-update the independent public copy.
 
 ## 3. Deterministic audit + Jev shadow
 
@@ -86,7 +102,7 @@ file hashes and numbered lines. Luna returns bounded non-overlapping line ranges
 and new text; it must not calculate hashes or retype the old text.
 
 Independently review the exact persisted UTF-8 response hash AND rendered diff with
-Argon. Validate paths, file hashes, provided ranges, schema, Unicode and overlap
+Frontier Intelligence. Validate paths, file hashes, provided ranges, schema, Unicode and overlap
 before applying to the isolated non-Git candidate. Never eval/run model output.
 Record non-candidate hashes, then rescan and run the affected tests on the actual
 sanitized artifact. An interrupted write is an invalid candidate, not a release.

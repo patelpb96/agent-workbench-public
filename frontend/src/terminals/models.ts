@@ -30,6 +30,13 @@ export const validModelName = (name: string): boolean => name === '' || /^[A-Za-
 
 export const modelsFor = (agent: AgentName): readonly ModelChoice[] => CHOICES[agent];
 
+/** A model name made short enough for a bar: vendor prefix and a trailing date dropped; `—` when it is not known. */
+export function shortModelName(name: string | null): string {
+  if (name === null) return '—';
+  const short = name.replace(/^claude-/, '').replace(/^models\//, '').replace(/-\d{8}$/, '');
+  return short === '' ? name : short;
+}
+
 /** The text to put in the input: `/model <name>`, or just `/model` for the agent's own picker. No newline, ever. */
 export const modelCommand = (name: string): string | null => (validModelName(name) ? (name === '' ? '/model' : `/model ${name}`) : null);
 

@@ -384,6 +384,12 @@ impl Inspector {
         Ok(MapView { generated_ms: now, sessions, reports: translate_reports(&pairs, &by_uuid) })
     }
 
+    /// The end-of-transcript look for a source: the model and the one-line task, no snapshot or path.
+    pub fn peek_of(&self, id: &str) -> Result<Peek, AppError> {
+        let found = self.find(id)?;
+        Ok(self.detail(&found).peek)
+    }
+
     pub fn snapshot(&self, id: &str) -> Result<serde_json::Value, AppError> {
         let found = self.find(id)?;
         let mut observers = self.observers.lock().map_err(|_| error("inspector_unavailable", "Inspector state is unavailable."))?;
@@ -403,7 +409,7 @@ impl Inspector {
         drop(observers);
         let detail = self.detail(&found);
         Ok(serde_json::json!({
-            "peek": { "last_line": detail.peek.last_line, "model": detail.peek.model },
+            "peek": { "last_line": detail.peek.last_line, "model": detail.peek.model, "task": detail.peek.task },
             "source": { "id": id, "agent": agent_name(found.kind), "label": found.label, "modified_ms": found.modified_ms, "bytes": found.bytes },
             "now_ms": now,
             "snapshot": snap,

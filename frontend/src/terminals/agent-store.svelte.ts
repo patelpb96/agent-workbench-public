@@ -50,12 +50,12 @@ export const agentStore = {
       }
       entries = Object.fromEntries(kept.map(e => [e.terminal, e]));
       for (const entry of kept) {
-        if (links[entry.terminal]?.state === 'linked') continue;
         try {
+          // Refresh linked entries too: the model and task name come from the end of the transcript and change as it runs.
           const link = await agentClient.link(entry.terminal);
           links = { ...links, [entry.terminal]: link };
         } catch {
-          /* leave it pending; the next refresh tries again */
+          /* leave the last link; the next refresh tries again */
         }
       }
     } catch {

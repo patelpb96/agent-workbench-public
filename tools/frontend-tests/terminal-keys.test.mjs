@@ -59,6 +59,7 @@ test('prefix then a command key: the tmux bindings', () => {
     [key('['), { kind: 'copy-mode' }],
     [key('/'), { kind: 'search' }],
     [key('L', { shiftKey: true }), { kind: 'toggle-log' }],
+    [key('f'), { kind: 'toggle-files' }],
     [key('S', { shiftKey: true }), { kind: 'sync' }],
     [key('?', { shiftKey: true }), { kind: 'help' }]
   ];

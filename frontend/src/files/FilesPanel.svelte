@@ -345,12 +345,12 @@
   .root { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; text-align: left; font: 11px ui-monospace, monospace; color: var(--muted); }
   .tools { display: flex; gap: 3px; flex: none; }
   .tools button { width: 26px; height: 24px; padding: 0; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
-  .tools button.on { color: var(--text); border-color: #8abaff; box-shadow: inset 0 -2px #8abaff; }
+  .tools button.on { color: var(--text); border-color: var(--accent); box-shadow: inset 0 -2px var(--accent); }
   .follow { display: flex; align-items: center; gap: 6px; font-size: 11px; }
   .follow input { margin: 0; }
   .follow-help { font-size: 10px; color: var(--muted); margin: 3px 0 8px 20px; }
   .pins { list-style: none; margin: 0 0 8px; padding: 0 0 6px; font-size: 12px; border-bottom: 1px solid var(--line); }
-  .pins small { color: #e5bc6e; }
+  .pins small { color: var(--warn); }
   .notice { font-size: 11px; color: var(--muted); margin: 0 0 8px; overflow-wrap: anywhere; }
   .tree { list-style: none; margin: 0; padding: 0; font-size: 12px; }
   .tree li { padding-left: calc(var(--depth) * 14px); }
@@ -360,8 +360,8 @@
   .twisty { width: 12px; flex: none; color: var(--muted); font-size: 10px; }
   .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .row small { color: var(--muted); font-size: 10px; flex: none; }
-  .pin-mark { color: #e5bc6e; font-size: 8px; flex: none; }
+  .pin-mark { color: var(--warn); font-size: 8px; flex: none; }
   .note { color: var(--muted); font-size: 11px; padding-top: 3px; padding-bottom: 3px; margin-left: 20px; }
-  .note.failed { color: #f3cfc7; }
+  .note.failed { color: var(--danger); }
   .hint { font-size: 10px; color: var(--muted); line-height: 1.7; margin: 10px 0 0; }
 </style>

@@ -32,6 +32,8 @@ def main() -> int:
             p.add_argument("--approvals", help="PRIVATE hash-bound binary approval JSON")
         if command in {"scan", "verify"}:
             p.add_argument("--report", required=True)
+        if command == "verify":
+            p.add_argument("--approved-owner", help="owner name permitted in the remote URL")
         if command == "shadow":
             p.add_argument("--out", required=True)
             p.add_argument("--consent-private-data", action="store_true")
@@ -51,6 +53,8 @@ def main() -> int:
             p.add_argument("--repo", required=True)
             p.add_argument("--reviewed-head", required=True)
             p.add_argument("--consent-push", action="store_true")
+            p.add_argument("--owner-is-identifiable", action="store_true",
+                           help="acknowledge that the remote owner is publicly attributable")
             p.add_argument("--release-approval", required=True)
     p = subs.add_parser("snapshot")
     p.add_argument("--source", required=True)
@@ -105,12 +109,13 @@ def main() -> int:
         print(json.dumps({"head": release.init_public(root, profile, approvals, Path(args.previous_public) if args.previous_public else None), "remote": "none", "pushed": False}))
         return 0
     if args.command == "verify":
-        result = release.verify_git(root, profile, approvals)
+        result = release.verify_git(root, profile, approvals, approved_owner=args.approved_owner)
         private_output(args.report, root, result)
         print(json.dumps({"clean": result["clean"], "objects_inspected": result["objects_inspected"]}))
         return 0 if result["clean"] else 1
     if args.command == "push":
-        release.push_public(root, args.owner, args.repo, profile, approvals, args.reviewed_head, args.consent_push, read_json(args.release_approval))
+        release.push_public(root, args.owner, args.repo, profile, approvals, args.reviewed_head, args.consent_push,
+                            read_json(args.release_approval), args.owner_is_identifiable)
         return 0
     return 2
 

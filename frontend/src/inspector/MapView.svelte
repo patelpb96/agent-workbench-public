@@ -40,7 +40,8 @@
   const natural = $derived(layout({ width, height }));
   const zoom = $derived(width > 0 && height > 0 && natural.height > 0 ? Math.min(MAX_ZOOM, Math.max(1, height / natural.height)) : 1);
   const map = $derived(zoom > 1 ? layout({ width: width / zoom, height: height / zoom }) : natural);
-  const scale = $derived(width > 0 && height > 0 ? Math.max(1, Math.min(MAX_ZOOM, height / map.height, width / map.width)) : 1);
+  // Shrink when the natural map is wider than its pane (the monospace labels are wider than the old UI font); never crop it.
+  const scale = $derived(width > 0 && height > 0 ? Math.max(0.5, Math.min(MAX_ZOOM, height / map.height, width / map.width)) : 1);
   const agents = $derived(map.nodes.filter(n => n.source !== null));
   // Exactly one agent glyph is in the tab order: the selected one, else the first.
   const focusId = $derived((agents.find(n => n.source === selected) ?? agents[0])?.id ?? null);
@@ -196,22 +197,22 @@
   .edge.spawn { stroke: var(--muted); }
   .edge.reports { stroke: var(--muted); stroke-dasharray: 3 2; }
   .edge.rail { stroke: var(--line); }
-  .edge.call { stroke: #8abaff; stroke-width: 1.5; }
-  .edge.live { stroke: #e5bc6e; stroke-width: 2; }
+  .edge.call { stroke: var(--accent); stroke-width: 1.5; }
+  .edge.live { stroke: var(--warn); stroke-width: 2; }
   .frame { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 3; }
   .node { transition: none; }
   .node.agent, .node.tool { cursor: pointer; }
   .node.agent:focus, .node.tool:focus { outline: none; }
-  .node.agent:focus-visible .hit, .node.tool:focus-visible .hit { stroke: #8abaff; stroke-width: 1; stroke-dasharray: 2 2; }
+  .node.agent:focus-visible .hit, .node.tool:focus-visible .hit { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 2 2; }
   .node.dim { opacity: .28; }
   .node.agent:hover .hit, .node.tool:hover .hit { stroke: var(--muted); stroke-width: 1; }
-  .node.tool.pinned .hit { stroke: #8abaff; stroke-width: 1; }
-  .sel { stroke: #8abaff; stroke-width: 2; }
-  .live-ring { stroke: #e5bc6e; stroke-width: 2; }
-  .flight { fill: #e5bc6e; }
-  .fault { fill: #e29787; }
+  .node.tool.pinned .hit { stroke: var(--accent); stroke-width: 1; }
+  .sel { stroke: var(--accent); stroke-width: 2; }
+  .live-ring { stroke: var(--warn); stroke-width: 2; }
+  .flight { fill: var(--warn); }
+  .fault { fill: var(--danger); }
   .tool-name { fill: var(--muted); font: 10px ui-monospace, monospace; pointer-events: none; }
-  .tool-name.live { fill: #e5bc6e; }
+  .tool-name.live { fill: var(--warn); }
   .tool-bar { fill: #4a5b73; pointer-events: none; }
   .tool-bar.err { fill: #b8665a; }
   .map-note { margin: 4px 0 0; color: var(--muted); font-size: 11px; }

@@ -9,6 +9,21 @@ pub fn settings_path(app: &tauri::AppHandle) -> Result<PathBuf, AppError> {
     app.path().app_data_dir().map(|d| d.join("settings.json")).map_err(|_| error("settings_failed", "The app data folder is unavailable."))
 }
 
+/// The signed-in Windows account's display name, capitalised for the title bar. The source contains no name.
+#[tauri::command]
+pub fn owner_name() -> String {
+    display_owner(&std::env::var("USERNAME").unwrap_or_default())
+}
+
+pub fn display_owner(raw: &str) -> String {
+    let name: String = raw.trim().chars().filter(|c| !c.is_control()).take(40).collect();
+    let mut chars = name.chars();
+    match chars.next() {
+        Some(first) => format!("{}{}", first.to_uppercase(), chars.as_str()),
+        None => "You".to_owned(),
+    }
+}
+
 /// The current settings (defaults when none are saved).
 #[tauri::command]
 pub fn settings_load(app: tauri::AppHandle) -> Result<Settings, AppError> {
@@ -113,4 +128,18 @@ pub async fn files_reveal(path: String) -> Result<(), AppError> {
     }
     // Explorer reports a nonzero status even when it opened the window, so only a failure to start is an error.
     command.creation_flags(0x0800_0000).spawn().map(|_| ()).map_err(|_| error("files_failed", "Explorer could not be started."))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::display_owner;
+
+    #[test]
+    fn owner_name_is_capitalised_bounded_and_never_empty() {
+        assert_eq!(display_owner("owner"), "Owner");
+        assert_eq!(display_owner("  owner  "), "Owner");
+        assert_eq!(display_owner(""), "You");
+        assert_eq!(display_owner("\u{1b}[31m"), "[31m");
+        assert_eq!(display_owner(&"x".repeat(100)).chars().count(), 40);
+    }
 }

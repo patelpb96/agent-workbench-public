@@ -62,7 +62,7 @@
   .row { display: flex; gap: 8px; align-items: stretch; }
   .field-box { margin-top: 5px; }
   input { margin: 0; padding: 7px 8px; }
-  input[aria-invalid='true'] { border-color: #dc8976; }
+  input[aria-invalid='true'] { border-color: var(--danger); }
   .row > button { margin-top: 5px; font-size: 12px; }
-  .note { min-height: 16px; margin: 4px 0 0; color: #e5bc6e; font-size: 11px; }
+  .note { min-height: 16px; margin: 4px 0 0; color: var(--warn); font-size: 11px; }
 </style>

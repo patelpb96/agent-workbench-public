@@ -36,6 +36,19 @@ Use an independent pseudonymous hosting account/organization and its dedicated
 credentials if ownership anonymity matters. This tool will not create a public repo
 under a personal account and describe it as anonymous.
 
+## Private automatic staging, public manual release
+
+The private source may refresh a separate `release-private` branch after pushes to
+its configured development branch (currently `main`). That automation requires a
+bound private repository, offline checks and hash-bound media approval; it fails
+closed and keeps the prior stage on findings. It does not make live model calls.
+Workflow files stay on the source branch, not in the automatic snapshot.
+
+**The public version changes only after an explicit user request.** Private-stage
+success is neither public publication nor native-release certification. Never
+change hosting visibility or merge private source/staging history into `public`.
+Use the independent public-history procedure below when publication is requested.
+
 ## Repeatable release
 
 The following is a template: replace the neutral paths with private local paths.
@@ -159,9 +172,11 @@ filenames, refs, remotes, binary approvals and current tree. Author AND committe
 are generic; personal signing is disabled; publication timestamps are normalized.
 No tags, shared object store, private merges, unexpected refs or URL rewrites.
 
-Set exactly one origin to the approved pseudonymous HTTPS repository only after
-ownership/authentication is resolved. `push` requires explicit consent, matching
-GitHub authentication, reviewed HEAD and `--release-approval <private-json>`. That
+Set exactly one origin to the approved HTTPS repository only after ownership and
+authentication are resolved. A remote owner that matches the identity profile is
+refused unless `--owner-is-identifiable` is passed: attribution is a deliberate,
+recorded choice, never a side effect of a refactor. `push` requires explicit consent,
+matching GitHub authentication, reviewed HEAD and `--release-approval <private-json>`. That
 private approval binds `head`, `manifest`, `profile_sha256`, an actual `reviewer`,
 `independent_review: APPROVE`, and `tests: {privacy: PASS, frontend: PASS, native: PASS}`.
 The profile digest is SHA-256 of `json.dumps(profile, sort_keys=True)`. Attach real

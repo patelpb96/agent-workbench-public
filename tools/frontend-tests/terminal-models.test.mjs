@@ -6,7 +6,7 @@ import test from 'node:test';
 
 const require = createRequire(import.meta.url);
 const root = fileURLToPath(new URL('../../', import.meta.url));
-const { modelCommand, validModelName, visibleModels, parseFavourites, toggleFavourite } = require(`${root}artifacts/frontend-contract-src/terminals/models.js`);
+const { modelCommand, validModelName, visibleModels, parseFavourites, toggleFavourite, shortModelName } = require(`${root}artifacts/frontend-contract-src/terminals/models.js`);
 
 test('the command is /model plus a single safe token, never a newline', () => {
   assert.equal(modelCommand('opus'), '/model opus');
@@ -36,4 +36,12 @@ test('favourites are per agent, toggle on and off, and stored text that is wrong
   assert.deepEqual(parseFavourites('[1]'), {});
   assert.deepEqual(parseFavourites(null), {});
   assert.deepEqual(parseFavourites(JSON.stringify({ claude: ['ok', 5, 'bad name', 'ok'], other: ['x'] })), { claude: ['ok'] });
+});
+
+test('the bar shortens a model name without hiding which family it is', () => {
+  assert.equal(shortModelName(null), '—');
+  assert.equal(shortModelName('claude-sonnet-5-5'), 'sonnet-5-5');
+  assert.equal(shortModelName('claude-opus-5-5-20260101'), 'opus-5-5');
+  assert.equal(shortModelName('models/gemini-4-pro'), 'gemini-4-pro');
+  assert.equal(shortModelName('gpt-6.1-sol'), 'gpt-6.1-sol');
 });

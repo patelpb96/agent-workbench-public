@@ -474,7 +474,7 @@
     Use <strong>End session</strong> to stop one. Click a terminal below to show it in the highlighted pane, or drag it onto a pane.
     Split a pane with the buttons in its header (up to {MAX_LEAVES} panes), or use <strong>Tile all</strong> to show every terminal at once.
     Alt+arrows move between panes and Alt+1 to Alt+9 jump to one.
-    {#if settingsStore.value.keys.prefix !== 'off'}In a terminal, <strong>{prefixName}</strong> works like tmux's prefix: {prefixName} then % or " splits, then [ copies, then / searches, then ? lists everything. Change or turn it off in Properties.{/if}
+    {#if settingsStore.value.keys.prefix !== 'off'}In a terminal, <strong>{prefixName}</strong> works like tmux's prefix: {prefixName} then % or " splits, then [ copies, then / searches, then f opens or closes Files, then ? lists everything. Change or turn it off in Properties.{/if}
   </p>
   <p class="terminal-hint small">Start folder, extended-history default and start-at-sign-in are in <strong>Properties</strong> (the gear in the title bar).</p>
   {#if !available}<div class="terminal-note">Terminals are available in the desktop app only.</div>{/if}
@@ -638,12 +638,12 @@
   .previous button { flex: none; }
   li button.restore { border-color: #8b7042; }
   .terminal-note { padding: 7px 10px; margin-bottom: 8px; border: 1px solid var(--line); background: var(--surface); font-size: 12px; }
-  .terminal-note.error { border-inline-start: 3px solid #dc8976; }
+  .terminal-note.error { border-inline-start: 3px solid var(--danger); }
   .terminal-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
   .bar { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; flex-shrink: 0; }
   .terminal-list { list-style: none; margin: 0; padding: 0 0 4px; display: flex; gap: 8px; overflow-x: auto; min-width: 0; }
   .terminal-list li { border: 1px solid var(--line); padding: 5px 6px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-  .terminal-list li.active { border-color: #8abaff; box-shadow: inset 2px 0 #8abaff; }
+  .terminal-list li.active { border-color: var(--accent); box-shadow: inset 2px 0 var(--accent); }
   .terminal-list li.empty { color: var(--muted); border-style: dashed; }
   .terminal-list .badge { font-size: 8px; }
   .pick { text-align: left; }
@@ -656,27 +656,27 @@
   .launch select, .launch input { margin-top: 3px; padding: 5px 6px; }
   .launch .field-box { margin-top: 3px; }
   .launch button { font-size: 12px; }
-  .launch-note { flex: 1 1 100%; color: #e5bc6e; font-size: 11px; }
-  .badge.agent-tag { color: #8abaff; border-color: #4a6b99; }
+  .launch-note { flex: 1 1 100%; color: var(--warn); font-size: 11px; }
+  .badge.agent-tag { color: var(--accent); border-color: #4a6b99; }
   .layouts { display: flex; gap: 4px; flex-shrink: 0; align-items: center; }
   .layouts button { font-size: 11px; }
   .pane-count { font: 10px ui-monospace, monospace; color: var(--muted); padding: 0 6px; white-space: nowrap; }
-  .layouts button.on { border-color: #e5bc6e; box-shadow: inset 0 -2px #e5bc6e; }
+  .layouts button.on { border-color: var(--warn); box-shadow: inset 0 -2px var(--warn); }
   .layout-pick { width: auto; margin: 0; padding: 3px 4px; font-size: 11px; }
-  .pane.synced { border-color: #e5bc6e; }
-  .pane-head .mode { color: #8abaff; font-weight: 700; }
-  .pane-head .mode.sync { color: #e5bc6e; }
+  .pane.synced { border-color: var(--warn); }
+  .pane-head .mode { color: var(--accent); font-weight: 700; }
+  .pane-head .mode.sync { color: var(--warn); }
   .pane-head button.rec-on { color: #e2685a; }
   .badge.rec { color: #fff; background: #b8473a; border-color: #b8473a; }
   .panes { flex: 1; min-height: 120px; position: relative; }
   .panes.dragging { user-select: none; }
   .divider { position: absolute; background: var(--line); touch-action: none; z-index: 2; }
-  .divider:hover, .divider:focus-visible, .panes.dragging .divider { background: #8abaff; }
+  .divider:hover, .divider:focus-visible, .panes.dragging .divider { background: var(--accent); }
   .divider.row { cursor: col-resize; }
   .divider.column { cursor: row-resize; }
-  .pane { position: absolute; box-sizing: border-box; min-width: 0; min-height: 0; display: flex; flex-direction: column; border: 1px solid var(--line); background: #0b121a; overflow: hidden; }
-  .pane.focused { border-color: #8abaff; }
-  .pane.drop { outline: 2px dashed #8abaff; outline-offset: -2px; }
+  .pane { position: absolute; box-sizing: border-box; min-width: 0; min-height: 0; display: flex; flex-direction: column; border: 1px solid var(--line); background: var(--bg); overflow: hidden; }
+  .pane.focused { border-color: var(--accent); }
+  .pane.drop { outline: 2px dashed var(--accent); outline-offset: -2px; }
   .terminal-list li[draggable=true] { cursor: grab; }
   .pane-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 2px 6px; border-bottom: 1px solid var(--line); background: var(--surface); font: 10px ui-monospace, monospace; color: var(--muted); white-space: nowrap; overflow: hidden; }
   .pane.focused .pane-head { color: var(--text); }
@@ -687,7 +687,7 @@
   .access { border: 1px solid var(--line); padding: 6px 10px; background: var(--surface); max-height: 38%; overflow: auto; flex-shrink: 0; }
   .access summary { cursor: pointer; font-size: 12px; }
   .access-hint { margin: 6px 0; color: var(--muted); font-size: 11px; }
-  .draft { border: 1px solid #8abaff; padding: 6px 8px; margin: 6px 0; }
+  .draft { border: 1px solid var(--accent); padding: 6px 8px; margin: 6px 0; }
   .draft pre { margin: 4px 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; }
   .draft .row, .grant { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
   .grant { border: 1px solid var(--line); padding: 4px 8px; margin: 4px 0; font-size: 12px; }

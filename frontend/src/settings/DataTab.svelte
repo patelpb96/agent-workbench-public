@@ -64,14 +64,14 @@
 {/if}
 
 <style>
-  .hint { margin: 2px 0 12px; color: var(--muted, #a5b3c6); font-size: 11px; line-height: 1.6; }
-  .problem { margin: 0 0 10px; padding: .4em .6em; border: 1px solid #8b7042; color: #e5bc6e; font-size: 11px; }
+  .hint { margin: 2px 0 12px; color: var(--muted, var(--muted)); font-size: 11px; line-height: 1.6; }
+  .problem { margin: 0 0 10px; padding: .4em .6em; border: 1px solid #8b7042; color: var(--warn); font-size: 11px; }
   .places { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5em; }
-  li { display: flex; gap: .8em; align-items: center; justify-content: space-between; padding: .5em .7em; border: 1px solid var(--line, #344256); background: var(--surface, #151e29); }
+  li { display: flex; gap: .8em; align-items: center; justify-content: space-between; padding: .5em .7em; border: 1px solid var(--line, var(--line)); background: var(--surface, var(--surface)); }
   .what { min-width: 0; display: flex; flex-direction: column; gap: .2em; }
   strong { font-size: 12px; font-weight: 600; }
-  small { color: var(--muted, #a5b3c6); font-size: 10.5px; }
-  code { font: 10.5px ui-monospace, monospace; color: var(--muted, #a5b3c6); overflow-wrap: anywhere; user-select: text; }
+  small { color: var(--muted, var(--muted)); font-size: 10.5px; }
+  code { font: 10.5px ui-monospace, monospace; color: var(--muted, var(--muted)); overflow-wrap: anywhere; user-select: text; }
   .acts { display: flex; gap: .4em; flex: none; }
   .acts button { font-size: 11px; white-space: nowrap; }
 </style>

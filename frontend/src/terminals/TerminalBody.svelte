@@ -29,7 +29,7 @@
     <div class="agent-bar" role="group" aria-label={`${agentLabel(entry.agent)} view`}>
       <button type="button" class:on={view === 'terminal'} aria-pressed={view === 'terminal'} onclick={() => agentStore.setView(session.id, 'terminal')}>Terminal</button>
       <button type="button" class:on={view === 'activity'} aria-pressed={view === 'activity'} onclick={() => agentStore.setView(session.id, 'activity')}>Activity</button>
-      <ModelPicker terminal={session.id} agent={entry.agent} {onNotice} />
+      <ModelPicker terminal={session.id} agent={entry.agent} currentModel={link?.state === 'linked' ? link.model : null} {onNotice} />
       <span class="agent-tag" title={entry.cwd}>{agentLabel(entry.agent)} · {link?.state === 'linked' ? 'transcript linked' : 'waiting for transcript'}</span>
     </div>
     <div class="agent-view">
@@ -47,12 +47,12 @@
 <style>
   .agent-body { position: relative; display: flex; flex-direction: column; width: 100%; height: 100%; min-height: 0; }
   /* Square, inside the window edge, never catches the mouse. Without motion it stays solid instead of pulsing. */
-  .agent-body.flash::after { content: ''; position: absolute; inset: 0; z-index: 30; pointer-events: none; box-shadow: inset 0 0 0 3px #e5bc6e; animation: needs-human 1s ease-in-out infinite; }
+  .agent-body.flash::after { content: ''; position: absolute; inset: 0; z-index: 30; pointer-events: none; box-shadow: inset 0 0 0 3px var(--warn); animation: needs-human 1s ease-in-out infinite; }
   @keyframes needs-human { 0%, 100% { opacity: 1; } 50% { opacity: .15; } }
   @media (prefers-reduced-motion: reduce) { .agent-body.flash::after { animation: none; } }
-  .agent-bar { display: flex; align-items: center; gap: 4px; flex: none; padding: 2px 6px; background: #101720; border-bottom: 1px solid #344256; }
+  .agent-bar { display: flex; align-items: center; gap: 4px; flex: none; padding: 2px 6px; background: var(--bg); border-bottom: 1px solid var(--line); }
   .agent-bar button { font-size: 10px; padding: 1px 8px; }
-  .agent-bar button.on { border-color: #8abaff; box-shadow: inset 0 -2px #8abaff; }
-  .agent-tag { margin-left: auto; font: 10px ui-monospace, monospace; color: #a5b3c6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .agent-bar button.on { border-color: var(--accent); box-shadow: inset 0 -2px var(--accent); }
+  .agent-tag { margin-left: auto; font: 10px ui-monospace, monospace; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .agent-view { flex: 1; min-height: 0; }
 </style>

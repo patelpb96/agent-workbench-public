@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { getCurrentWindow } from '@tauri-apps/api/window';
-  import { native, resetWindow, runtimeInfo, setAppearance, openBackground, selectedAssetUrl } from './native';
+  import { native, ownerName, resetWindow, runtimeInfo, setAppearance, openBackground, selectedAssetUrl } from './native';
   import type { BackgroundKind, RuntimeInfo } from './native';
   import SessionPanel from './components/SessionPanel.svelte';
   import Section from './components/Section.svelte';
@@ -16,6 +16,9 @@
   import FilesPanel from './files/FilesPanel.svelte';
   import ResumeDialog from './terminals/ResumeDialog.svelte';
   import { agentStore } from './terminals/agent-store.svelte.js';
+  import { lastFocused } from './terminals/last-focused.svelte.js';
+  import { agentLabel } from './terminals/agents.js';
+  import { shortModelName } from './terminals/models.js';
   import { keyControl } from './terminals/keys.svelte.js';
   import KeyHint from './terminals/KeyHint.svelte';
   import { settingsStore } from './settings/settings-store.svelte.js';
@@ -55,6 +58,7 @@
   let disposed = false;
   let runtime = $state.raw<RuntimeInfo | undefined>();
   let message = $state(native ? 'Connecting to the native desktop shell…' : 'Browser preview — desktop persistence and execution are unavailable.');
+  let owner = $state('You');
   let previewModule = $state<Wire.ModuleName>('agents');
   let previewTheme = $state<Wire.ThemeName>('dark');
   let previewSide = $state(300);
@@ -62,6 +66,8 @@
   const editable = $derived(native && workspaceState.layout.base !== null && draft !== null && workspaceState.layout.warning === null);
   const active = $derived(editable && draft ? draft.active_module : previewModule);
   const theme = $derived(editable && draft ? draft.theme : previewTheme);
+  // A session panel with no chosen surface follows the theme; the colour input still receives a concrete hex.
+  const defaultFill = $derived(theme === 'light' ? '#fbfaf4' : theme === 'contrast' ? '#000000' : '#0f1214');
   const sideWidth = $derived(editable && draft ? draft.sidebar_width : previewSide);
   const sessions = $derived(workspaceState.snapshot?.sessions ?? []);
   const runs = $derived(workspaceState.snapshot?.runs ?? []);
@@ -91,6 +97,15 @@
   // the per-run consent below names exactly what is sent.
   let carryContext = $state(true);
   const codexAvailability = $derived(workspaceState.snapshot?.codex_availability ?? 'not_configured');
+  // The title bar follows the terminal last used: harness, current model from its transcript, and a one-line task name
+  // from the latest message. Nothing is fetched for this beyond the agent link the terminal already needs.
+  const focusedAgent = $derived(lastFocused.id === null ? undefined : agentStore.entryOf(lastFocused.id));
+  const focusedLink = $derived(lastFocused.id === null ? undefined : agentStore.linkOf(lastFocused.id));
+  const focusedModel = $derived(focusedLink?.state === 'linked' ? focusedLink.model : null);
+  const focusedTask = $derived(focusedLink?.state === 'linked' ? focusedLink.task : null);
+  const titleHarness = $derived(focusedAgent ? agentLabel(focusedAgent.agent) : 'Workbench');
+  const titleModel = $derived(shortModelName(focusedModel));
+  const titleTask = $derived(focusedTask ?? (native ? 'Desktop workspace' : 'Browser preview'));
   const codexReady = $derived(codexAvailability === 'ready');
   const codexSession = $derived(selectedSession?.provider_id === 'codex');
   const codexPromptValid = $derived(prompt.length > 0 && utf8Bytes(prompt) <= limits.codex_prompt_bytes && !/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/.test(prompt));
@@ -130,7 +145,7 @@
   const hasCancel = $derived(workspaceState.attempts.some(attempt => attempt.command === 'cancel_run'));
   const cancelable = $derived(selectedRun !== undefined && selectedRun.state !== 'cancel_requested' && runTransitions[selectedRun.state].length > 0);
   let surfaces = $state<Record<string, { fill: string; opacity: number }>>({});
-  const selectedSurface = $derived(selectedPanel ? surfaces[selectedPanel.panel_id] ?? { fill: '#172534', opacity: 96 } : { fill: '#172534', opacity: 96 });
+  const selectedSurface = $derived(selectedPanel ? surfaces[selectedPanel.panel_id] ?? { fill: defaultFill, opacity: 96 } : { fill: defaultFill, opacity: 96 });
 
   // Sidebars: collapse (full, compact, flat) and, once collapsed, dock to the top or bottom edge (sidebars.ts).
   // The title bar slides away unless the cursor rests on the top edge for a moment (or something inside it has focus).
@@ -683,6 +698,9 @@
   }
 
   onMount(() => {
+    void ownerName().then(name => { if (name.length > 0 && name.length <= 40) owner = name; }).catch(() => undefined);
+  });
+  onMount(() => {
     disposed = false;
     void Promise.all([ghost.init(), settingsStore.load()]).then(() => { if (!disposed) return restoreWindow(); }).catch(() => { windowRestored = true; });
     const stopController = mountDesktopController(controller);
@@ -769,7 +787,7 @@
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <header class="titlebar" class:autohide={autoHide} class:above={signedOut} class:shown={barShown || barFocused} onpointerenter={barEnter} onpointerleave={barLeave} onfocusin={() => { barFocused = true; }} onfocusout={() => { barFocused = false; barLeave(); }}>
     <button class="title-drag" aria-label="Drag desktop window; double-click to maximize or restore" onmousedown={startWindowDrag}>
-      <svg class="brandmark" class:dev={devBuild} viewBox="0 0 256 256" aria-hidden="true"><rect x="3" y="3" width="250" height="250" /><path d={logoPath} /></svg><strong>AGENT WORKBENCH</strong><span class="divider">/</span><span>{native ? 'Desktop workspace' : 'Browser preview'}</span>
+      <svg class="brandmark" class:dev={devBuild} viewBox="0 0 256 256" aria-hidden="true"><rect x="3" y="3" width="250" height="250" /><path d={logoPath} /></svg><strong>AGENT WORKBENCH</strong><span class="divider">/</span><span class="title-context" title={`${titleHarness}${focusedModel ? ` / ${focusedModel}` : ''} * ${owner} — ${titleTask}`}><span class="title-harness">[{titleHarness}/{titleModel}]</span><span class="title-owner">* {owner}</span><span class="title-sep">·</span><span class="title-task">{titleTask}</span></span>
     </button>
     {#if devBuild}<span class="badge dev" title="A development build: its own data folder and window, separate from the normal build">DEV BUILD</span>{/if}
     <span class="badge" title={codexReady ? 'Codex is available (read-only, no tools)' : 'Codex is not available: only the local test runner can run'}>{codexReady ? 'CODEX READY' : 'CODEX UNAVAILABLE'}</span>
@@ -818,7 +836,7 @@
             </section>
           {/each}
           {#each draft.panels as panel (panel.panel_id)}
-            <SessionPanel {panel} geometry={panelDisplay(panel)} session={sessions.find(session => session.session_id === panel.session_id)} runs={sessionRuns(panel.session_id)} selectedRunId={workspaceState.selected_run_by_session[panel.session_id]} active={workspaceState.selected_session_id === panel.session_id} transcript={workspaceState.selected_session_id === panel.session_id ? workspaceState.transcript : null} progress={workspaceState.progress} refreshing={workspaceState.in_flight} editable={editable} mutationPending={workspaceState.mutation_pending} canCancel={ready && !hasCancel} fill={surfaces[panel.panel_id]?.fill ?? '#172534'} opacity={surfaces[panel.panel_id]?.opacity ?? 96} dragging={dragging && interaction?.id === panel.panel_id} onFocus={() => act(() => controller.selectSession(panel.session_id))} onCycle={() => cycle(panel.panel_id)} onSelectRun={runId => selectRun(panel.session_id, runId)} onCancelRun={cancelRun} onEarlier={() => act(() => controller.loadEarlier())} onLive={() => act(() => controller.returnToLive())} onBegin={(event, kind) => begin(event, kind, panel.panel_id)} onMove={move} onEnd={cancelInteraction} onKey={(event, kind) => keyGeometry(event, kind, panel.panel_id)} onKeyUp={() => shift = false} terminals={canvasTerminals.terminals} link={linkOf(canvasTerminals.state, panel.session_id)} onLink={terminal => canvasTerminals.commit(terminal === null ? unlink(canvasTerminals.state, panel.session_id) : linkTerminal(canvasTerminals.state, panel.session_id, terminal))} onFlip={on => canvasTerminals.commit(flip(canvasTerminals.state, panel.session_id, on))} />
+            <SessionPanel {panel} geometry={panelDisplay(panel)} session={sessions.find(session => session.session_id === panel.session_id)} runs={sessionRuns(panel.session_id)} selectedRunId={workspaceState.selected_run_by_session[panel.session_id]} active={workspaceState.selected_session_id === panel.session_id} transcript={workspaceState.selected_session_id === panel.session_id ? workspaceState.transcript : null} progress={workspaceState.progress} refreshing={workspaceState.in_flight} editable={editable} mutationPending={workspaceState.mutation_pending} canCancel={ready && !hasCancel} fill={surfaces[panel.panel_id]?.fill ?? defaultFill} opacity={surfaces[panel.panel_id]?.opacity ?? 96} dragging={dragging && interaction?.id === panel.panel_id} onFocus={() => act(() => controller.selectSession(panel.session_id))} onCycle={() => cycle(panel.panel_id)} onSelectRun={runId => selectRun(panel.session_id, runId)} onCancelRun={cancelRun} onEarlier={() => act(() => controller.loadEarlier())} onLive={() => act(() => controller.returnToLive())} onBegin={(event, kind) => begin(event, kind, panel.panel_id)} onMove={move} onEnd={cancelInteraction} onKey={(event, kind) => keyGeometry(event, kind, panel.panel_id)} onKeyUp={() => shift = false} terminals={canvasTerminals.terminals} link={linkOf(canvasTerminals.state, panel.session_id)} onLink={terminal => canvasTerminals.commit(terminal === null ? unlink(canvasTerminals.state, panel.session_id) : linkTerminal(canvasTerminals.state, panel.session_id, terminal))} onFlip={on => canvasTerminals.commit(flip(canvasTerminals.state, panel.session_id, on))} />
           {/each}
         {:else}<div class="canvas-empty"><h2>{native ? 'No editable authoritative layout' : 'Desktop app required'}</h2><p>{native ? 'Refresh to obtain a valid native layout. Stored warnings are never overwritten with a fallback layout.' : 'Native session storage and fake execution are unavailable in this preview.'}</p></div>{/if}
         {#if active === 'agents' && !showTerminals && !showInspector}<FloatingTerminals />{/if}

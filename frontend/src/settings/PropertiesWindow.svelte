@@ -107,7 +107,7 @@
               onchange={event => { const prefix = event.currentTarget.value; if (isPrefixSetting(prefix)) void settingsStore.update(s => ({ ...s, keys: { prefix } })); }}>
               {#each PREFIXES as p (p)}<option value={p}>{p === 'off' ? 'Off: no key is taken from the terminals' : `${PREFIX_LABEL[p]}${p === 'ctrl+b' ? ' (tmux)' : ' (screen)'}`}</option>{/each}
             </select></label>
-          <p class="hint">In a terminal, press the prefix and then a key: % or " splits, arrows move between panes, z zooms, [ copies, / searches, S types into every pane, L logs to a file, ? lists them all. Only the prefix is taken from the terminal; pressing it twice sends it on (for programs that use it themselves).</p>
+          <p class="hint">In a terminal, press the prefix and then a key: % or " splits, arrows move between panes, z zooms, [ copies, / searches, S types into every pane, L logs to a file, f opens or closes the Files panel, ? lists them all. Only the prefix is taken from the terminal; pressing it twice sends it on (for programs that use it themselves).</p>
           <label class="check"><input type="checkbox" checked={autostart} disabled={autostartBusy} onchange={() => void toggleAutostart()} /> Start the terminal service when I sign in</label>
           <p class="hint">Off by default. The service starts on demand either way; this only starts it earlier. It runs as you, never elevated.{autostartError ? ` ${autostartError}` : ''}</p>
         {:else if selected === 'agents'}
@@ -131,22 +131,22 @@
 
 <style>
   .backdrop { position: fixed; inset: 0; z-index: 60; background: #000b; display: flex; align-items: center; justify-content: center; padding: 24px; }
-  .dialog { width: min(820px, 100%); height: min(560px, 100%); display: flex; flex-direction: column; background: var(--bg, #101720); border: 1px solid var(--line, #344256); color: var(--text, #e4ebf5); box-shadow: 0 20px 60px #000c; }
-  header { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid var(--line, #344256); }
+  .dialog { width: min(820px, 100%); height: min(560px, 100%); display: flex; flex-direction: column; background: var(--bg, var(--bg)); border: 1px solid var(--line, var(--line)); color: var(--text, var(--text)); box-shadow: 0 20px 60px #000c; }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid var(--line, var(--line)); }
   h2 { margin: 0; font-size: 15px; letter-spacing: .3px; }
   .close { border: 0; background: transparent; font-size: 20px; line-height: 1; padding: 2px 8px; }
-  .close:hover { background: #b42318; color: #fff; }
+  .close:hover { background: var(--danger); color: #fff; }
   .body { flex: 1; min-height: 0; display: flex; }
-  .tabs { flex: 0 0 160px; display: flex; flex-direction: column; border-right: 1px solid var(--line, #344256); padding: 10px 0; background: var(--surface, #151e29); }
-  .tabs button { text-align: left; border: 0; background: transparent; padding: 10px 16px; font-size: 13px; color: var(--muted, #a5b3c6); }
-  .tabs button.on { background: var(--control, #1b2735); color: var(--text, #e4ebf5); box-shadow: inset 2px 0 #86b6ff; }
+  .tabs { flex: 0 0 160px; display: flex; flex-direction: column; border-right: 1px solid var(--line, var(--line)); padding: 10px 0; background: var(--surface, var(--surface)); }
+  .tabs button { text-align: left; border: 0; background: transparent; padding: 10px 16px; font-size: 13px; color: var(--muted, var(--muted)); }
+  .tabs button.on { background: var(--control, var(--control)); color: var(--text, var(--text)); box-shadow: inset 2px 0 var(--accent); }
   .panel { flex: 1; min-width: 0; overflow: auto; padding: 14px 20px 20px; }
   h3 { margin: 0 0 14px; font-size: 14px; font-weight: 500; }
-  .hint { margin: 2px 0 16px; color: var(--muted, #a5b3c6); font-size: 11px; line-height: 1.6; }
+  .hint { margin: 2px 0 16px; color: var(--muted, var(--muted)); font-size: 11px; line-height: 1.6; }
   .check { display: flex; align-items: center; gap: 8px; margin: 10px 0 2px; font-size: 12px; }
   .prefix { display: block; margin: 12px 0 2px; font-size: 12px; }
   .prefix select { display: block; width: auto; margin-top: 4px; }
   .check input[type='checkbox'] { width: 16px; height: 16px; padding: 0; margin: 0; flex: none; display: inline-block; }
-  footer { padding: 6px 14px; border-top: 1px solid var(--line, #344256); font-size: 11px; color: var(--muted, #a5b3c6); min-height: 28px; }
-  .bad { color: #f3cfc7; }
+  footer { padding: 6px 14px; border-top: 1px solid var(--line, var(--line)); font-size: 11px; color: var(--muted, var(--muted)); min-height: 28px; }
+  .bad { color: var(--danger); }
 </style>

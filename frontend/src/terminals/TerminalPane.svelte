@@ -216,13 +216,28 @@
       void pump();
     };
 
+    // Terminal colours come from the active Workbench theme, so the emulator follows Dark/Light/System/Contrast.
+    const css = getComputedStyle(el);
+    const token = (name: string, fallback: string): string => css.getPropertyValue(name).trim() || fallback;
+    const terminalTheme = () => ({
+      background: token('--term-bg', '#07090a'),
+      foreground: token('--term-fg', '#c9d1cd'),
+      cursor: token('--term-cursor', '#7ac887'),
+      selectionBackground: token('--term-selection', '#1f3a2a'),
+      scrollbarSliderBackground: token('--term-selection', '#1f3a2a'),
+      scrollbarSliderHoverBackground: token('--term-cursor', '#7ac887'),
+      scrollbarSliderActiveBackground: token('--term-cursor', '#7ac887')
+    });
     const t = new Terminal({
       cols: initial.cols, rows: initial.rows, scrollback: 10_000, cursorBlink: true, convertEol: false,
       // The proposed API is needed for decorations, which the search addon draws its highlights and result count with
       // (xterm 6 refuses registerDecoration without it). It only widens what this code may call, not what output can do.
       fontFamily: '"Cascadia Mono", Consolas, "Courier New", monospace', fontSize: 13, allowProposedApi: true,
-      theme: { background: '#0b121a', foreground: '#e4ebf5', cursor: '#9bc2ff', selectionBackground: '#33557f', scrollbarSliderBackground: '#3a4a60b3', scrollbarSliderHoverBackground: '#566b88e6', scrollbarSliderActiveBackground: '#7f9cc4' }
+      theme: terminalTheme()
     });
+    const themeRoot = el.closest('.workbench');
+    const themeObserver = new MutationObserver(() => { if (alive) t.options.theme = terminalTheme(); });
+    if (themeRoot) themeObserver.observe(themeRoot, { attributes: true, attributeFilter: ['data-theme'] });
     suppressQueryReplies(t);
     const fit = new FitAddon();
     t.loadAddon(fit);
@@ -391,6 +406,7 @@
       clearTimeout(pollTimer);
       clearTimeout(resizeTimer);
       observer.disconnect();
+      themeObserver.disconnect();
       window.removeEventListener('error', onWindowError);
       t.dispose();
     };
@@ -447,30 +463,30 @@
 </div>
 
 <style>
-  .pane-wrap { position: relative; width: 100%; height: 100%; min-height: 0; padding: 6px; overflow: hidden; background: #0b121a; }
+  .pane-wrap { position: relative; width: 100%; height: 100%; min-height: 0; padding: 6px; overflow: hidden; background: var(--bg); }
   .pane-host { width: 100%; height: 100%; min-height: 0; overflow: hidden; }
   /* Hidden until the pane is hovered or holds the caret, so an idle terminal looks untouched. The wrapper spans the
      pane so the bar can size itself against it, but it never takes a click: only the button or the bar does. */
   .pane-tools { position: absolute; top: 6px; left: 6px; right: 6px; z-index: 5; display: flex; justify-content: flex-end; opacity: 0; pointer-events: none; transition: opacity 120ms; }
   .pane-wrap:hover .pane-tools, .pane-wrap:focus-within .pane-tools, .pane-tools.open { opacity: 1; }
   .pane-tools > * { pointer-events: auto; }
-  .search-open { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; padding: 0; color: #a5b3c6; background: #0b121ad9; border: 1px solid #3a4a60; }
-  .search-open:hover, .search-open:focus-visible { color: #e4ebf5; border-color: #8abaff; }
-  .search-bar { width: min(336px, 100%); padding: 4px; background: #0b121a; border: 1px solid #60738d; box-shadow: 0 12px 32px #0008; }
+  .search-open { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; padding: 0; color: var(--muted); background: var(--bg)d9; border: 1px solid var(--line); }
+  .search-open:hover, .search-open:focus-visible { color: var(--text); border-color: var(--accent); }
+  .search-bar { width: min(336px, 100%); padding: 4px; background: var(--bg); border: 1px solid var(--line); box-shadow: none; }
   .search-row { display: flex; align-items: stretch; gap: 2px; }
   /* Three classes so the global input padding/margin (style.css) loses to the compact bar. */
-  .search-bar .search-row input.search-query { flex: 1; display: block; width: auto; margin: 0; padding: 2px 6px; font: 11px ui-monospace, monospace; color: #e4ebf5; background: #151e29; border: 1px solid #3a4a60; }
-  .search-bar .search-row input.search-query::placeholder { color: #6b7c92; }
-  .search-bar button { padding: 0 6px; font: 11px ui-monospace, monospace; color: #a5b3c6; background: #151e29; border: 1px solid #3a4a60; }
-  .search-bar button:hover { color: #e4ebf5; border-color: #8abaff; }
-  .search-bar button.on { color: #e5bc6e; border-color: #e5bc6e; }
+  .search-bar .search-row input.search-query { flex: 1; display: block; width: auto; margin: 0; padding: 2px 6px; font: 11px ui-monospace, monospace; color: var(--text); background: #151e29; border: 1px solid var(--line); }
+  .search-bar .search-row input.search-query::placeholder { color: var(--muted); }
+  .search-bar button { padding: 0 6px; font: 11px ui-monospace, monospace; color: var(--muted); background: #151e29; border: 1px solid var(--line); }
+  .search-bar button:hover { color: var(--text); border-color: var(--accent); }
+  .search-bar button.on { color: var(--warn); border-color: var(--warn); }
   .search-bar .shut { padding: 0 5px; font-size: 13px; }
-  .search-result { margin-top: 3px; padding: 0 2px; font: 10px ui-monospace, monospace; color: #a5b3c6; overflow-wrap: anywhere; }
+  .search-result { margin-top: 3px; padding: 0 2px; font: 10px ui-monospace, monospace; color: var(--muted); overflow-wrap: anywhere; }
   .search-result:empty { display: none; }
-  .search-result.bad { color: #e29787; }
+  .search-result.bad { color: var(--danger); }
   /* Copy mode: an amber edge and a status line, like tmux's mode indicator; the terminal itself stays readable. */
-  .pane-wrap.copying { box-shadow: inset 0 0 0 1px #e5bc6e; }
-  .copy-line { position: absolute; left: 6px; right: 6px; bottom: 6px; z-index: 5; padding: 2px 6px; font: 10px ui-monospace, monospace; color: #0b121a; background: #e5bc6e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+  .pane-wrap.copying { box-shadow: inset 0 0 0 1px var(--warn); }
+  .copy-line { position: absolute; left: 6px; right: 6px; bottom: 6px; z-index: 5; padding: 2px 6px; font: 10px ui-monospace, monospace; color: var(--bg); background: var(--warn); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
   /* Logging: always visible while on (the design requires an indicator: the file holds whatever was printed). */
-  .rec { position: absolute; top: 6px; left: 6px; z-index: 5; padding: 0 5px; font: 700 9px ui-monospace, monospace; letter-spacing: .5px; color: #fff; background: #b8473a; pointer-events: auto; }
+  .rec { position: absolute; top: 6px; left: 6px; z-index: 5; padding: 0 5px; font: 700 9px ui-monospace, monospace; letter-spacing: .5px; color: #fff; background: var(--danger); pointer-events: auto; }
 </style>

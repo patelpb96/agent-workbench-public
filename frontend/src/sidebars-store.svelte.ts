@@ -4,6 +4,8 @@ import { collapse, defaultArrangement, defaultBars, dockTo, dropOn, expand, pars
 
 const KEY = 'aw.sidebars';
 const ARRANGEMENT_KEY = 'aw.arrangement';
+// The old default put Files on the right (module list on the left). Move that saved default once; a later choice is kept.
+const FILES_LEFT_KEY = 'aw.arrangement.files-left';
 
 function read<T>(key: string, parse: (raw: unknown) => T, fallback: T): T {
   try {
@@ -20,10 +22,26 @@ function write(key: string, value: unknown): void {
     // Not remembered; the layout still changes.
   }
 }
+function readArrangement(): Arrangement {
+  try {
+    const raw = typeof localStorage === 'undefined' ? null : localStorage.getItem(ARRANGEMENT_KEY);
+    if (raw === null) return defaultArrangement;
+    const parsed = parseArrangement(JSON.parse(raw));
+    if (localStorage.getItem(FILES_LEFT_KEY) === null && parsed.side === 'left' && parsed.panel === 'files') {
+      localStorage.setItem(FILES_LEFT_KEY, '1');
+      localStorage.setItem(ARRANGEMENT_KEY, JSON.stringify(defaultArrangement));
+      return defaultArrangement;
+    }
+    localStorage.setItem(FILES_LEFT_KEY, '1');
+    return parsed;
+  } catch {
+    return defaultArrangement;
+  }
+}
 
 class SidebarStore {
   bars = $state.raw<Bars>(read(KEY, parseBars, defaultBars));
-  arrangement = $state.raw<Arrangement>(read(ARRANGEMENT_KEY, parseArrangement, defaultArrangement));
+  arrangement = $state.raw<Arrangement>(readArrangement());
 
   private set(next: Bars): void {
     this.bars = next;

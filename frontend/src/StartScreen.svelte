@@ -62,26 +62,26 @@
 
 <style>
   /* Below the title bar (z-index 60), so the window can still be moved, minimized and closed while signed out. */
-  .start { position: fixed; inset: 0; z-index: 59; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--bg, #101720); color: var(--text, #e4ebf5); overflow: auto; }
-  .card { width: min(760px, 100%); border: 1px solid var(--line, #344256); background: var(--surface, #151e29); padding: 22px 26px; }
+  .start { position: fixed; inset: 0; z-index: 59; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--bg, var(--bg)); color: var(--text, var(--text)); overflow: auto; }
+  .card { width: min(760px, 100%); border: 1px solid var(--line, var(--line)); background: var(--surface, var(--surface)); padding: 22px 26px; }
   header { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
   .mark { width: 52px; height: 52px; flex: none; }
   .mark rect { fill: #3a3f45; }
   .mark path { fill: #ece8df; }
   h1 { margin: 0; font-size: 15px; letter-spacing: 1.6px; font-weight: 600; }
-  .sub { margin: 4px 0 0; color: var(--muted, #a5b3c6); font-size: 12px; }
-  section { border-top: 1px solid var(--line, #344256); padding: 14px 0 6px; }
-  h2 { margin: 0 0 10px; font: 10px ui-monospace, monospace; letter-spacing: 1px; color: var(--muted, #a5b3c6); font-weight: 400; text-transform: uppercase; }
+  .sub { margin: 4px 0 0; color: var(--muted, var(--muted)); font-size: 12px; }
+  section { border-top: 1px solid var(--line, var(--line)); padding: 14px 0 6px; }
+  h2 { margin: 0 0 10px; font: 10px ui-monospace, monospace; letter-spacing: 1px; color: var(--muted, var(--muted)); font-weight: 400; text-transform: uppercase; }
   .cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
   h3 { margin: 0 0 6px; font-size: 12px; font-weight: 600; }
-  h3 span { color: var(--muted, #a5b3c6); font-weight: 400; margin-left: 4px; }
+  h3 span { color: var(--muted, var(--muted)); font-weight: 400; margin-left: 4px; }
   ul { list-style: none; margin: 0; padding: 0; font-size: 12px; }
   li { padding: 3px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  li small { color: var(--muted, #a5b3c6); font-size: 10px; margin-left: 4px; }
-  li.off { color: var(--muted, #a5b3c6); }
-  .more, .none { color: var(--muted, #a5b3c6); font-size: 11px; margin: 0; }
-  .note { color: var(--muted, #a5b3c6); font-size: 10px; line-height: 1.7; margin: 12px 0 4px; }
-  footer { display: flex; gap: 8px; flex-wrap: wrap; border-top: 1px solid var(--line, #344256); padding-top: 14px; margin-top: 8px; }
+  li small { color: var(--muted, var(--muted)); font-size: 10px; margin-left: 4px; }
+  li.off { color: var(--muted, var(--muted)); }
+  .more, .none { color: var(--muted, var(--muted)); font-size: 11px; margin: 0; }
+  .note { color: var(--muted, var(--muted)); font-size: 10px; line-height: 1.7; margin: 12px 0 4px; }
+  footer { display: flex; gap: 8px; flex-wrap: wrap; border-top: 1px solid var(--line, var(--line)); padding-top: 14px; margin-top: 8px; }
   footer button { font-size: 12px; padding: 8px 14px; }
   .primary { background: #2c5d9c; border-color: #4c7fc0; color: #fff; }
   @media (max-width: 640px) { .cols { grid-template-columns: 1fr; } }

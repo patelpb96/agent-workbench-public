@@ -771,6 +771,7 @@ fn main() {
             terminals::terminal_windows_save,
             inspector::inspector_tags_load,
             inspector::inspector_tags_save,
+            props::owner_name,
             props::settings_load,
             props::settings_save,
             props::pick_folder,

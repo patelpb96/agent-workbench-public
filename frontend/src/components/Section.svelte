@@ -40,7 +40,7 @@
   .sec-title { margin: 0; font-size: inherit; font-weight: inherit; }
   .sec-head { display: flex; align-items: baseline; gap: 8px; width: 100%; padding: 9px 0; border: 0; background: transparent; color: var(--text); text-align: left; font: 10px/1.6 ui-monospace, monospace; letter-spacing: .8px; text-transform: uppercase; }
   .sec-head:hover:not(:disabled) { border-color: transparent; color: var(--text); background: var(--control); }
-  .sec-head.attention .sec-name::after { content: ' ●'; color: #e5bc6e; }
+  .sec-head.attention .sec-name::after { content: ' ●'; color: var(--warn); }
   .sec-chev { width: 1.2em; color: var(--muted); flex: none; font-size: 12px; }
   .sec-name { flex: none; color: var(--muted); }
   .sec-sum { margin-left: auto; color: var(--muted); text-transform: none; letter-spacing: 0; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }

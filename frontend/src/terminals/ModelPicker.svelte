@@ -3,11 +3,11 @@
   // Nothing is sent; the person presses Enter. Favourites (star) are listed first and are kept per agent kind.
   import { untrack } from 'svelte';
   import { agentChoices, type AgentName } from './agents.js';
-  import { modelCommand, parseFavourites, toggleFavourite, visibleModels, type Favourites } from './models.js';
+  import { modelCommand, parseFavourites, shortModelName, toggleFavourite, visibleModels, type Favourites } from './models.js';
   import { terminalClient } from './tauri.js';
 
-  interface Props { terminal: string; agent: AgentName; onNotice: (text: string) => void }
-  let { terminal, agent, onNotice }: Props = $props();
+  interface Props { terminal: string; agent: AgentName; currentModel?: string | null; onNotice: (text: string) => void }
+  let { terminal, agent, currentModel = null, onNotice }: Props = $props();
 
   const KEY = 'aw.models';
   // The terminal was launched as `agent`, but a person can quit it and start a different CLI in the same terminal (Codex, Pi, any
@@ -45,6 +45,7 @@
   }
 
   const listFor = $derived(chosen ?? agent);
+  const current = $derived(shortModelName(currentModel));
   const shown = $derived(visibleModels(listFor, search, favourites[listFor] ?? []));
 
   function toggle(): void {
@@ -69,7 +70,7 @@
 </script>
 
 <span class="picker">
-  <button type="button" class:on={open} aria-expanded={open} aria-haspopup="listbox" title="Fill the input with a model switch command (nothing is sent)" onclick={toggle}>Model</button>
+  <button type="button" class:on={open} aria-expanded={open} aria-haspopup="listbox" aria-label="Model" title={currentModel ? `Current model: ${currentModel} (from the latest transcript). Fill the input with a model switch command; nothing is sent.` : 'Current model is not known yet. Fill the input with a model switch command; nothing is sent.'} onclick={toggle}>Model<span class="now">{current === '—' ? '' : ` · ${current}`}</span></button>
   {#if open}
     <div class="pop" role="dialog" aria-label="Choose a model">
       <div class="which" role="group" aria-label="Models for">
@@ -78,6 +79,7 @@
           <button type="button" class:on={listFor === a.id} aria-pressed={listFor === a.id} onclick={() => choose(a.id)}>{a.label}</button>
         {/each}
       </div>
+      <p class="current">Current: <strong>{currentModel ?? 'not known yet'}</strong>{#if currentModel}<small> from the latest transcript</small>{/if}</p>
       <input bind:this={field} bind:value={search} type="search" placeholder="Search, or type a model name" aria-label="Search models" onkeydown={key} />
       <ul role="listbox" aria-label="Models">
         {#each shown as m (m.name)}
@@ -99,21 +101,25 @@
 
 <style>
   .picker { position: relative; display: inline-flex; }
-  .picker > button { font-size: 10px; padding: 1px 8px; }
-  .picker > button.on { border-color: #8abaff; box-shadow: inset 0 -2px #8abaff; }
-  .pop { position: absolute; top: 100%; left: 0; z-index: 40; width: 260px; margin-top: 2px; padding: 6px; background: #0b121a; border: 1px solid #60738d; box-shadow: 0 12px 32px #0008; }
-  .which { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; margin-bottom: 6px; font-size: 10px; color: #a5b3c6; }
+  .picker > button { font-size: 10px; padding: 1px 8px; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .picker > button.on { border-color: var(--accent, var(--accent)); box-shadow: inset 0 -2px var(--accent, var(--accent)); }
+  .now { color: var(--muted, var(--muted)); }
+  .current { margin: 0 0 6px; color: var(--muted, var(--muted)); font-size: 10px; }
+  .current strong { color: var(--text, var(--text)); font-weight: 600; }
+  .current small { color: var(--muted, var(--muted)); }
+  .pop { position: absolute; top: 100%; left: 0; z-index: 40; width: 260px; margin-top: 2px; padding: 6px; background: var(--surface); border: 1px solid var(--line); box-shadow: none; }
+  .which { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; margin-bottom: 6px; font-size: 10px; color: var(--muted); }
   .which button { font-size: 10px; padding: 1px 6px; }
-  .which button.on { border-color: #8abaff; box-shadow: inset 0 -2px #8abaff; }
+  .which button.on { border-color: var(--accent); box-shadow: inset 0 -2px var(--accent); }
   .pop input { width: 100%; box-sizing: border-box; font-size: 12px; }
   ul { list-style: none; margin: 6px 0; padding: 0; max-height: 220px; overflow: auto; }
   .row { display: flex; align-items: stretch; }
-  .star { border: 0; background: transparent; color: #a5b3c6; padding: 0 6px; font-size: 14px; }
-  .star.on { color: #e5bc6e; }
-  .name { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; text-align: left; border: 0; background: transparent; padding: 3px 4px; color: #e4ebf5; }
-  .name:hover { background: #151e29; }
+  .star { border: 0; background: transparent; color: var(--muted); padding: 0 6px; font-size: 14px; }
+  .star.on { color: var(--warn); }
+  .name { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; text-align: left; border: 0; background: transparent; padding: 3px 4px; color: var(--text); }
+  .name:hover { background: var(--control); }
   .name strong { font: 12px ui-monospace, monospace; font-weight: 600; }
-  .name small { font-size: 10px; color: #a5b3c6; }
-  .none, .hint { margin: 0; font-size: 10px; color: #a5b3c6; }
+  .name small { font-size: 10px; color: var(--muted); }
+  .none, .hint { margin: 0; font-size: 10px; color: var(--muted); }
   code { font-size: 10px; }
 </style>

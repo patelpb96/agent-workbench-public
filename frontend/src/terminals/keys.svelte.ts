@@ -2,6 +2,7 @@
 // focused terminal does; it takes the prefix and the command key after it, and nothing else. Commands go to the
 // terminal the key was pressed in (search, copy mode, logging, sending the prefix) or to the Terminals view's panes.
 import { settingsStore } from '../settings/settings-store.svelte.js';
+import { sidebars } from '../sidebars-store.svelte.js';
 import { command, interpret, isModifierKey, isPrefix, PREFIX_BYTES, PREFIX_LABEL, PREFIX_TIMEOUT_MS, REPEAT_MS, repeatable, type Action, type Prefix } from './keymap.js';
 import { logStore } from './logs.svelte.js';
 import { nearestInDirection, readingOrder, type Box } from './spatial.js';
@@ -190,6 +191,12 @@ function run(action: Action, shown: Shown, prefix: Exclude<Prefix, 'off'>): void
       if (shown.session) void logStore.toggle(shown.session).then(text => say(text, 8000));
       else say(inTerminal);
       return;
+    case 'toggle-files': {
+      const opening = sidebars.arrangement.panel !== 'files';
+      sidebars.togglePanel('files');
+      say(opening ? 'Files panel opened.' : 'Files panel closed.');
+      return;
+    }
     default:
       if (!PANE_ACTIONS.has(action.kind)) return;
       // On the Canvas the windows sit anywhere: arrows, o and 1..9 move between them by position.

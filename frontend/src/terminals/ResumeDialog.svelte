@@ -67,10 +67,10 @@
 
 <style>
   .backdrop { position: fixed; inset: 0; z-index: 70; background: #000b; display: flex; align-items: center; justify-content: center; padding: 24px; }
-  .box { max-width: 34em; padding: 1.2em 1.4em; background: var(--bg, #101720); border: 1px solid var(--line, #344256); color: var(--text, #e4ebf5); box-shadow: 0 20px 60px #000c; }
+  .box { max-width: 34em; padding: 1.2em 1.4em; background: var(--bg, var(--bg)); border: 1px solid var(--line, var(--line)); color: var(--text, var(--text)); box-shadow: 0 20px 60px #000c; }
   h2 { margin: 0 0 .6em; font-size: 15px; }
-  p { margin: 0 0 1em; font-size: 12px; line-height: 1.65; color: var(--muted, #a5b3c6); }
-  p strong { color: var(--text, #e4ebf5); font-weight: 500; }
+  p { margin: 0 0 1em; font-size: 12px; line-height: 1.65; color: var(--muted, var(--muted)); }
+  p strong { color: var(--text, var(--text)); font-weight: 500; }
   code { font-family: ui-monospace, monospace; }
   .actions { display: flex; justify-content: flex-end; gap: .6em; }
   .danger { border-color: #b87333; }

@@ -88,7 +88,8 @@ export type Side = 'left' | 'right';
 /** What the panel beside the workspace shows, or null when it is closed (docs/design/sidebar-restructure.md). */
 export type PanelName = 'sessions' | 'files';
 export interface Arrangement { readonly side: Side; readonly panel: PanelName | null }
-export const defaultArrangement: Arrangement = { side: 'left', panel: 'files' };
+// Files open on the left by default (a tmux/herdr-style file sidebar); the module list then sits on the right.
+export const defaultArrangement: Arrangement = { side: 'right', panel: 'files' };
 
 export function parseArrangement(raw: unknown): Arrangement {
   const r = typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {};

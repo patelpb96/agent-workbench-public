@@ -24,6 +24,9 @@ pub struct Peek {
     pub last_line: Option<String>,
     /// The model named by the most recent assistant message (or turn context), as a short label.
     pub model: Option<String>,
+    /// The first line of the most recent message the person sent (cleaned and bounded), or the assistant's last line
+    /// when the transcript has no user text. Used as the one-line task name.
+    pub task: Option<String>,
 }
 
 /// Control characters become spaces, runs of whitespace collapse, the result is trimmed and cut.
@@ -64,41 +67,59 @@ fn model_label(v: Option<&Value>) -> Option<String> {
     (!name.is_empty() && !name.starts_with('<')).then(|| event::label(name))
 }
 
-/// What one transcript line contributes: (assistant text, model).
-fn read_line(kind: AgentKind, v: &Value) -> (Option<String>, Option<String>) {
+/// What one transcript line contributes: (assistant text, model, user text).
+fn read_line(kind: AgentKind, v: &Value) -> (Option<String>, Option<String>, Option<String>) {
     let kind_of = |k: &str| v.get("type").and_then(Value::as_str) == Some(k);
     match kind {
         AgentKind::Claude if kind_of("assistant") => {
             let message = v.get("message");
-            (message.and_then(|m| m.get("content")).and_then(|c| block_text(c, &["text"])), model_label(message.and_then(|m| m.get("model"))))
+            (message.and_then(|m| m.get("content")).and_then(|c| block_text(c, &["text"])), model_label(message.and_then(|m| m.get("model"))), None)
+        }
+        AgentKind::Claude if kind_of("user") => {
+            let message = v.get("message");
+            (None, None, message.and_then(|m| m.get("content")).and_then(|c| block_text(c, &["text"])))
         }
         AgentKind::Pi if kind_of("message") => {
             let message = v.get("message");
-            if message.and_then(|m| m.get("role")).and_then(Value::as_str) != Some("assistant") {
-                return (None, None);
+            let role = message.and_then(|m| m.get("role")).and_then(Value::as_str);
+            let text = message.and_then(|m| m.get("content")).and_then(|c| block_text(c, &["text"]));
+            if role == Some("assistant") {
+                (text, model_label(message.and_then(|m| m.get("model"))), None)
+            } else if role == Some("user") {
+                (None, None, text)
+            } else {
+                (None, None, None)
             }
-            (message.and_then(|m| m.get("content")).and_then(|c| block_text(c, &["text"])), model_label(message.and_then(|m| m.get("model"))))
         }
         AgentKind::Codex => {
             let payload = v.get("payload");
             let payload_type = payload.and_then(|p| p.get("type")).and_then(Value::as_str);
-            if kind_of("response_item") && payload_type == Some("message") && payload.and_then(|p| p.get("role")).and_then(Value::as_str) == Some("assistant") {
-                return (payload.and_then(|p| p.get("content")).and_then(|c| block_text(c, &["output_text"])), None);
+            if kind_of("response_item") && payload_type == Some("message") {
+                let role = payload.and_then(|p| p.get("role")).and_then(Value::as_str);
+                if role == Some("assistant") {
+                    return (payload.and_then(|p| p.get("content")).and_then(|c| block_text(c, &["output_text"])), None, None);
+                }
+                if role == Some("user") {
+                    return (None, None, payload.and_then(|p| p.get("content")).and_then(|c| block_text(c, &["input_text", "text"])));
+                }
             }
             if kind_of("event_msg") && payload_type == Some("agent_message") {
-                return (payload.and_then(|p| p.get("message")).and_then(Value::as_str).map(str::to_owned), None);
+                return (payload.and_then(|p| p.get("message")).and_then(Value::as_str).map(str::to_owned), None, None);
+            }
+            if kind_of("event_msg") && payload_type == Some("user_message") {
+                return (None, None, payload.and_then(|p| p.get("message")).and_then(Value::as_str).map(str::to_owned));
             }
             if kind_of("turn_context") {
-                return (None, model_label(payload.and_then(|p| p.get("model"))));
+                return (None, model_label(payload.and_then(|p| p.get("model"))), None);
             }
-            (None, None)
+            (None, None, None)
         }
-        _ => (None, None),
+        _ => (None, None, None),
     }
 }
 
-/// Read one window at the end of the file: (last assistant text, model).
-fn scan(kind: AgentKind, file: &mut fs::File, len: u64, window: u64) -> Option<(Option<String>, Option<String>)> {
+/// Read one window at the end of the file: (last assistant text, model, last user text).
+fn scan(kind: AgentKind, file: &mut fs::File, len: u64, window: u64) -> Option<(Option<String>, Option<String>, Option<String>)> {
     let start = len.saturating_sub(window);
     file.seek(SeekFrom::Start(start)).ok()?;
     let mut bytes = Vec::with_capacity((len - start) as usize);
@@ -107,19 +128,22 @@ fn scan(kind: AgentKind, file: &mut fs::File, len: u64, window: u64) -> Option<(
     if start > 0 {
         lines.next(); // begins mid-line
     }
-    let (mut last_text, mut model) = (None, None);
+    let (mut last_text, mut model, mut last_user) = (None, None, None);
     for line in lines {
         let Ok(text) = std::str::from_utf8(line) else { continue };
         let Ok(value) = serde_json::from_str::<Value>(text) else { continue };
-        let (t, m) = read_line(kind, &value);
+        let (t, m, u) = read_line(kind, &value);
         if t.as_deref().is_some_and(|t| !t.trim().is_empty()) {
             last_text = t;
         }
         if m.is_some() {
             model = m;
         }
+        if u.as_deref().is_some_and(|u| !u.trim().is_empty()) {
+            last_user = u;
+        }
     }
-    Some((last_text, model))
+    Some((last_text, model, last_user))
 }
 
 /// Read the end of the transcript at `path`. Anything unreadable gives an empty `Peek`.
@@ -128,13 +152,16 @@ pub fn peek(kind: AgentKind, path: &Path) -> Peek {
         let mut file = fs::File::open(path).ok()?;
         let len = file.metadata().ok()?.len();
         let mut model = None;
+        let mut task = None;
         for (i, window) in WINDOWS.iter().enumerate() {
-            let (text, found_model) = scan(kind, &mut file, len, *window)?;
+            let (text, found_model, found_task) = scan(kind, &mut file, len, *window)?;
             model = found_model.or(model);
+            // A larger window reaches further back; a task found in the smaller (newer) window wins.
+            task = found_task.and_then(|t| t.lines().find_map(clean_line)).or(task);
             let last_line = text.and_then(|t| t.lines().rev().find_map(clean_line));
             // Done when a line was found, or the window already covered the whole file.
             if last_line.is_some() || len <= *window || i == WINDOWS.len() - 1 {
-                return Some(Peek { last_line, model });
+                return Some(Peek { task: task.or_else(|| last_line.clone()), last_line, model });
             }
         }
         None
@@ -170,6 +197,7 @@ mod tests {
         let got = peek(AgentKind::Claude, &p);
         assert_eq!(got.last_line.as_deref(), Some("Done: tests pass (31)"), "last non-empty line, whitespace collapsed, tool-only and user messages skipped");
         assert_eq!(got.model.as_deref(), Some("claude-opus-5"));
+        assert_eq!(got.task.as_deref(), Some("thanks"), "the most recent user message wins for the task name");
     }
 
     #[test]
@@ -180,7 +208,7 @@ mod tests {
             json!({"type":"message","message":{"role":"assistant","model":"gemini-x","content":[{"type":"thinking","text":"hidden"},{"type":"text","text":"Answer\nlast words"}]}}),
         ]);
         let got = peek(AgentKind::Pi, &pi);
-        assert_eq!((got.last_line.as_deref(), got.model.as_deref()), (Some("last words"), Some("gemini-x")));
+        assert_eq!((got.last_line.as_deref(), got.model.as_deref(), got.task.as_deref()), (Some("last words"), Some("gemini-x"), Some("question")));
         let codex = write(&[
             json!({"type":"session_meta","payload":{"id":"x","cwd":"C:\\p"}}),
             json!({"type":"turn_context","payload":{"model":"gpt-6"}}),
@@ -189,9 +217,10 @@ mod tests {
             json!({"type":"event_msg","payload":{"type":"token_count"}}),
         ]);
         let got = peek(AgentKind::Codex, &codex);
-        assert_eq!((got.last_line.as_deref(), got.model.as_deref()), (Some("All done"), Some("gpt-6")));
+        assert_eq!((got.last_line.as_deref(), got.model.as_deref(), got.task.as_deref()), (Some("All done"), Some("gpt-6"), Some("do it")));
         let agent_message = write(&[json!({"type":"event_msg","payload":{"type":"agent_message","message":"Plain message"}})]);
-        assert_eq!(peek(AgentKind::Codex, &agent_message).last_line.as_deref(), Some("Plain message"));
+        let got = peek(AgentKind::Codex, &agent_message);
+        assert_eq!((got.last_line.as_deref(), got.task.as_deref()), (Some("Plain message"), Some("Plain message")), "no user text: the assistant line is the task");
     }
 
     #[test]
@@ -228,6 +257,9 @@ mod tests {
         far.extend(filler(4500));
         let q = write(&far);
         assert!(fs::metadata(&q).unwrap().len() > WINDOWS[2]);
-        assert_eq!(peek(AgentKind::Claude, &q), Peek::default());
+        let got = peek(AgentKind::Claude, &q);
+        assert_eq!(got.last_line, None, "the assistant answer is beyond the last window");
+        assert_eq!(got.model, None);
+        assert!(got.task.as_deref().is_some_and(|t| t.starts_with("xxx")), "the latest user message is still the task");
     }
 }

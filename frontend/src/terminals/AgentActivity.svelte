@@ -99,27 +99,27 @@
 </div>
 
 <style>
-  .activity { height: 100%; overflow: auto; padding: 8px 10px; font-size: 12px; color: var(--text, #e4ebf5); background: #0b121a; }
-  .note { margin: 6px 0; color: #a5b3c6; line-height: 1.5; }
-  .note.error { color: #f3cfc7; }
-  .last { display: flex; gap: .8em; align-items: baseline; margin: 0 0 8px; padding: .4em .6em; border: 1px solid #344256; background: #101923; }
-  .last .k { flex: none; font: 9px ui-monospace, monospace; letter-spacing: 1px; color: #a5b3c6; }
+  .activity { height: 100%; overflow: auto; padding: 8px 10px; font-size: 12px; color: var(--text, var(--text)); background: var(--bg); }
+  .note { margin: 6px 0; color: var(--muted); line-height: 1.5; }
+  .note.error { color: var(--danger); }
+  .last { display: flex; gap: .8em; align-items: baseline; margin: 0 0 8px; padding: .4em .6em; border: 1px solid var(--line); background: var(--surface); }
+  .last .k { flex: none; font: 9px ui-monospace, monospace; letter-spacing: 1px; color: var(--muted); }
   .last .text { font: 12px ui-monospace, monospace; overflow-wrap: anywhere; }
   .cards { display: flex; gap: 8px; flex-wrap: wrap; }
-  .card { flex: 1 1 110px; border: 1px solid #344256; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px; }
-  .card .k { font: 9px ui-monospace, monospace; letter-spacing: .8px; color: #a5b3c6; }
-  .card small { color: #a5b3c6; font-size: 10px; }
-  .state.working { color: #80c49b; }
-  .state.waiting_for_human { color: #e5bc6e; }
-  .bar { display: flex; height: 10px; margin: 10px 0 4px; border: 1px solid #344256; }
-  .seg.tool { background: #8abaff; } .seg.model { background: #b7a2e0; } .seg.human { background: #e5bc6e; }
-  .legend { margin: 2px 0 8px; color: #a5b3c6; font-size: 11px; }
-  h3 { margin: 10px 0 4px; font: 10px ui-monospace, monospace; letter-spacing: 1px; color: #a5b3c6; font-weight: 400; }
+  .card { flex: 1 1 110px; border: 1px solid var(--line); padding: 6px 8px; display: flex; flex-direction: column; gap: 2px; }
+  .card .k { font: 9px ui-monospace, monospace; letter-spacing: .8px; color: var(--muted); }
+  .card small { color: var(--muted); font-size: 10px; }
+  .state.working { color: var(--accent); }
+  .state.waiting_for_human { color: var(--warn); }
+  .bar { display: flex; height: 10px; margin: 10px 0 4px; border: 1px solid var(--line); }
+  .seg.tool { background: var(--info); } .seg.model { background: var(--accent); } .seg.human { background: var(--warn); }
+  .legend { margin: 2px 0 8px; color: var(--muted); font-size: 11px; }
+  h3 { margin: 10px 0 4px; font: 10px ui-monospace, monospace; letter-spacing: 1px; color: var(--muted); font-weight: 400; }
   table { width: 100%; border-collapse: collapse; }
   th, td { text-align: left; padding: 2px 6px 2px 0; font-size: 11px; white-space: nowrap; }
-  th { color: #a5b3c6; font-weight: 400; }
+  th { color: var(--muted); font-weight: 400; }
   td.name { overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
-  .bad { color: #e29787; }
+  .bad { color: var(--danger); }
   .recent { list-style: none; margin: 0; padding: 0; }
   .recent li { display: flex; gap: 10px; padding: 1px 0; font-size: 11px; }
   .r-tool { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }

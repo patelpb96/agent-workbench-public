@@ -136,7 +136,11 @@ def init_public(root: Path, profile: dict, approvals: dict | None = None, previo
     return git(root, "rev-parse", "HEAD", env=env).decode().strip()
 
 
-def verify_git(root: Path, profile: dict, approvals: dict | None = None) -> dict:
+def verify_git(root: Path, profile: dict, approvals: dict | None = None,
+               approved_owner: str | None = None) -> dict:
+    """Verify history and metadata. `approved_owner` is the one name allowed in the
+    remote URL after the owner has accepted attribution; it is redacted before the
+    metadata scan so any OTHER mention of that name is still a finding."""
     root = root.resolve(strict=True)
     if not (root / ".git").is_dir() or (root / ".git/commondir").exists():
         raise ValueError("Public repo must have an independent Git object directory")
@@ -205,24 +209,31 @@ def verify_git(root: Path, profile: dict, approvals: dict | None = None) -> dict
         raise ValueError("Public history must have exactly one independent root")
     # Remote URLs, local repo config and hook files are private operational data,
     # but verify them too so a personal remote cannot be used accidentally.
-    for value in (git(root, "remote", "-v").decode(), git(root, "config", "--local", "--list").decode()):
-        findings.extend(text_findings("git-metadata", value, profile))
+    metadata = "\n".join((git(root, "remote", "-v").decode(),
+                            git(root, "config", "--local", "--list").decode()))
+    if approved_owner:
+        metadata = metadata.replace(f"https://github.com/{approved_owner}/", "https://github.com/<approved-owner>/")
+    findings.extend(text_findings("git-metadata", metadata, profile))
     return {"clean": not findings, "findings": findings, "manifest": report["manifest"],
             "head": git(root, "rev-parse", "HEAD").decode().strip(), "objects_inspected": inspected}
 
 
 def push_public(root: Path, owner: str, repo: str, profile: dict, approvals: dict,
-                reviewed_head: str, consent: bool = False, release_approval: dict | None = None) -> None:
+                reviewed_head: str, consent: bool = False, release_approval: dict | None = None,
+                identifiable_owner: bool = False) -> None:
     if not consent or not re.fullmatch(r"[A-Za-z0-9-]{1,39}", owner) or not re.fullmatch(r"[A-Za-z0-9_.-]{1,100}", repo):
-        raise ValueError("Explicit pseudonymous owner/repository and push consent required")
+        raise ValueError("Explicit owner/repository and push consent required")
     if text_findings("owner", owner, profile):
-        raise ValueError("Identifiable remote owner")
+        # Ownership was anonymous by default. An identifiable owner is allowed only as a
+        # deliberate, recorded choice, never as a silent side effect of a refactor.
+        if not identifiable_owner:
+            raise ValueError("Identifiable remote owner: pass --owner-is-identifiable to accept attribution")
     expected = f"https://github.com/{owner}/{repo}.git"
     urls = git(root, "remote", "get-url", "--all", "--push", "origin").decode().splitlines()
     fetch_urls = git(root, "remote", "get-url", "--all", "origin").decode().splitlines()
     if urls != [expected] or fetch_urls != [expected]:
         raise ValueError("Exactly one explicit anonymous HTTPS origin is required")
-    check = verify_git(root, profile, approvals)
+    check = verify_git(root, profile, approvals, approved_owner=owner if identifiable_owner else None)
     if not check["clean"] or check["head"] != reviewed_head:
         raise ValueError("Review is missing, stale, or has privacy findings")
     approval = release_approval or {}

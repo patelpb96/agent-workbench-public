@@ -6,7 +6,7 @@ A desktop workspace for coding agents. Keep persistent terminals on a freeform c
 
 **Development preview · Windows-first · no installer or signed release yet.**
 
-The collage shows the real Svelte interface with **synthetic sessions and a simulated backend**. It is not a capture of a personal desktop or evidence of live provider execution. The close-ups are crops. [Full canvas](docs/assets/public/canvas.png) · [Split terminals](docs/assets/public/terminals.png) · [Inspector](docs/assets/public/inspector-map.png).
+The collage shows the real Svelte interface with **synthetic sessions and a simulated backend**. It is not a capture of a personal desktop or evidence of live provider execution. The close-ups are crops. These captures predate the latest layout pass (Files panel moved left, theme restyle, owner name derived from the local account), so small details differ from a current build. [Full canvas](docs/assets/public/canvas.png) · [Split terminals](docs/assets/public/terminals.png) · [Inspector](docs/assets/public/inspector-map.png).
 
 ## What it does
 

@@ -27,6 +27,7 @@ export type Action =
   | { readonly kind: 'copy-mode' }
   | { readonly kind: 'search' }
   | { readonly kind: 'toggle-log' }
+  | { readonly kind: 'toggle-files' }
   | { readonly kind: 'sync' }
   | { readonly kind: 'help' }
   | { readonly kind: 'send-prefix' };
@@ -88,6 +89,7 @@ export function command(k: KeyInput): Action | null {
     case '[': return { kind: 'copy-mode' };
     case '/': return { kind: 'search' };
     case 'L': return { kind: 'toggle-log' };
+    case 'f': return { kind: 'toggle-files' };
     case 'S': return { kind: 'sync' };
     case '?': return { kind: 'help' };
     default: return null;
@@ -136,6 +138,7 @@ export const BINDINGS: readonly { readonly keys: string; readonly what: string }
   { keys: '/', what: 'Search the scrollback' },
   { keys: 'S', what: 'Type into every pane at once (on/off)' },
   { keys: 'L', what: 'Log this terminal to a file (on/off)' },
+  { keys: 'f', what: 'Open or close the Files panel (left by default)' },
   { keys: '?', what: 'This list' },
   { keys: 'the prefix again', what: 'Send the prefix key itself to the terminal' },
   { keys: 'Escape', what: 'Cancel' }

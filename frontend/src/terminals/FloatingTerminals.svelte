@@ -139,31 +139,31 @@
 <style>
   .float-layer { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; }
   .float-grid { position: absolute; inset: 0; z-index: 0; pointer-events: none; background-image: linear-gradient(#8298b733 1px, transparent 1px), linear-gradient(90deg, #8298b733 1px, transparent 1px); background-size: 20px 20px; }
-  .float-win { position: absolute; box-sizing: border-box; display: flex; flex-direction: column; pointer-events: auto; border: 1px solid #60738d; background: #0b121a; box-shadow: 0 12px 32px #0006; overflow: hidden; }
-  .float-win.active { border-color: #8abaff; box-shadow: 0 0 0 1px #8abaff, 0 14px 36px #0007; }
+  .float-win { position: absolute; box-sizing: border-box; display: flex; flex-direction: column; pointer-events: auto; border: 1px solid var(--line); background: var(--bg); box-shadow: none; overflow: hidden; }
+  .float-win.active { border-color: var(--accent); box-shadow: none; outline: 1px solid var(--accent); outline-offset: -1px; }
   .float-win.gesture { user-select: none; }
   .float-win.watch { border-style: dashed; }
-  .float-grip small { color: #a5b3c6; font-size: 10px; margin-left: 6px; }
-  .float-head { display: flex; align-items: stretch; height: 28px; flex: none; background: #151e29; border-bottom: 1px solid #344256; }
-  .float-grip { flex: 1; min-width: 0; text-align: left; border: 0; background: transparent; color: #e4ebf5; cursor: grab; touch-action: none; padding: 0 8px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .float-grip small { color: var(--muted); font-size: 10px; margin-left: 6px; }
+  .float-head { display: flex; align-items: stretch; height: 28px; flex: none; background: var(--surface); border-bottom: 1px solid var(--line); }
+  .float-grip { flex: 1; min-width: 0; text-align: left; border: 0; background: transparent; color: var(--text); cursor: grab; touch-action: none; padding: 0 8px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .float-win.gesture .float-grip { cursor: grabbing; }
-  .float-action { border: 0; border-left: 1px solid #344256; background: transparent; color: #cbd8ea; padding: 0 .9em; font-size: 11px; white-space: nowrap; }
-  .float-action:hover:not(:disabled) { background: #1b2735; color: #fff; }
-  .float-stage { border: 0; background: transparent; color: #e4ebf5; padding: 0 9px; font-size: 15px; }
-  .float-stage:hover { background: #1b2735; color: #fff; }
+  .float-action { border: 0; border-left: 1px solid var(--line); background: transparent; color: var(--text); padding: 0 .9em; font-size: 11px; white-space: nowrap; }
+  .float-action:hover:not(:disabled) { background: var(--control); color: var(--text); }
+  .float-stage { border: 0; background: transparent; color: var(--text); padding: 0 9px; font-size: 15px; }
+  .float-stage:hover { background: var(--control); color: var(--text); }
   .float-win.bar .float-head, .float-win.block .float-head { height: 100%; border-bottom: 0; }
   /* A block: the grip fills the square (two letters of the name show; the whole name is its tooltip), restore on the right. */
   .float-win.block .float-grip { padding: 0 4px; font-size: 11px; text-overflow: clip; }
   .float-win.block .float-grip span { display: none; }
   .float-win.block .float-stage { padding: 0 6px; }
   /* Same amber edge as a full agent terminal waiting for you (TerminalBody); solid without motion. */
-  .float-win.flash::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; box-shadow: inset 0 0 0 3px #e5bc6e; animation: float-needs-human 1s ease-in-out infinite; }
+  .float-win.flash::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; box-shadow: inset 0 0 0 3px var(--warn); animation: float-needs-human 1s ease-in-out infinite; }
   @keyframes float-needs-human { 0%, 100% { opacity: 1; } 50% { opacity: .15; } }
   @media (prefers-reduced-motion: reduce) { .float-win.flash::after { animation: none; } }
-  .float-close { border: 0; background: transparent; color: #e4ebf5; padding: 0 10px; font-size: 16px; }
-  .float-close:hover { background: #b42318; }
+  .float-close { border: 0; background: transparent; color: var(--text); padding: 0 10px; font-size: 16px; }
+  .float-close:hover { background: var(--danger); }
   .float-body { position: relative; flex: 1; min-height: 0; }
-  .float-missing { margin: 12px; color: #a5b3c6; font-size: 12px; }
-  .float-error { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; padding: 4px 8px; background: #3a1d1a; color: #f3cfc7; font-size: 11px; }
-  .float-resize { position: absolute; right: 0; bottom: 0; width: 18px; height: 18px; padding: 0; border: 0; background: #152232; color: #e4ebf5; font-size: 12px; line-height: 18px; cursor: nwse-resize; touch-action: none; z-index: 1; }
+  .float-missing { margin: 12px; color: var(--muted); font-size: 12px; }
+  .float-error { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; padding: 4px 8px; background: var(--surface); color: var(--danger); font-size: 11px; }
+  .float-resize { position: absolute; right: 0; bottom: 0; width: 18px; height: 18px; padding: 0; border: 0; background: var(--control); color: var(--text); font-size: 12px; line-height: 18px; cursor: nwse-resize; touch-action: none; z-index: 1; }
 </style>

@@ -229,7 +229,8 @@ fn find_link(registry_file: &Path, links: &AgentLinks, inspector: &Inspector, te
         Some(path) => {
             let kind = kind_of(&entry.agent).expect("registry entries are validated");
             let source = inspector.pin(kind, path).ok_or_else(|| error("agent_failed", "The transcript could not be opened."))?;
-            Ok(json!({ "state": "linked", "source": source, "agent": entry.agent }))
+            let peek = inspector.peek_of(&source).unwrap_or_default();
+            Ok(json!({ "state": "linked", "source": source, "agent": entry.agent, "model": peek.model, "task": peek.task }))
         }
         None => Ok(json!({ "state": "pending", "agent": entry.agent })),
     }

@@ -40,18 +40,18 @@
 <style>
   .tile { display: flex; flex-direction: column; gap: .35em; width: 100%; min-width: 0; text-align: left; padding: .5em .6em .5em .75em; border: 1px solid var(--line); border-inline-start: .3em solid var(--stripe); background: var(--surface); color: var(--text); }
   .tile:hover { background: var(--control); }
-  .tile.selected { border-color: #8abaff; border-inline-start-color: var(--stripe); background: var(--control); box-shadow: 0 0 0 1px #8abaff; }
+  .tile.selected { border-color: var(--accent); border-inline-start-color: var(--stripe); background: var(--control); box-shadow: 0 0 0 1px var(--accent); }
   .top { display: flex; align-items: center; gap: .5em; min-width: 0; }
   .top strong { flex: 1; min-width: 0; font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   time { color: var(--muted); font: 10px ui-monospace, monospace; flex: none; }
   .dot { flex: none; width: .65em; height: .65em; background: var(--muted); }
-  .dot.active { background: #6fc48b; box-shadow: 0 0 .6em #6fc48b; }
-  .dot.idle { background: #e5bc6e; }
-  .dot.inactive { background: #6b7a8f; }
+  .dot.active { background: var(--accent); box-shadow: 0 0 .6em var(--accent); }
+  .dot.idle { background: var(--warn); }
+  .dot.inactive { background: var(--dim); }
   .dot.other { background: transparent; border: 1px solid var(--muted); }
   .chips { display: flex; flex-wrap: wrap; gap: .3em; min-width: 0; }
   .chip { font: 9px ui-monospace, monospace; letter-spacing: .4px; padding: .15em .45em; border: 1px solid currentColor; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
-  .chip.running { color: #6fc48b; }
+  .chip.running { color: var(--accent); }
   .line { font: 10.5px ui-monospace, monospace; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .line.none { opacity: .6; font-style: italic; }
 </style>

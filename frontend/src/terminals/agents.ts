@@ -13,7 +13,7 @@ export const agentLabel = (agent: string): string => agentChoices.find(a => a.id
 export interface AgentEntry { readonly terminal: string; readonly agent: AgentName; readonly cwd: string; readonly launched_ms: number }
 export type AgentLink =
   | { readonly state: 'pending'; readonly agent: AgentName }
-  | { readonly state: 'linked'; readonly agent: AgentName; readonly source: string };
+  | { readonly state: 'linked'; readonly agent: AgentName; readonly source: string; readonly model: string | null; readonly task: string | null };
 export interface AgentLaunch { readonly terminal: TerminalInfo; readonly agent: AgentName }
 /** The answer to "open this existing session in a terminal". `busy`: its transcript changed moments ago, so it may still be running elsewhere. */
 export type AgentResume =
@@ -31,6 +31,9 @@ function record(v: unknown): v is Record<string, unknown> {
 }
 function agentName(v: unknown): v is AgentName {
   return v === 'claude' || v === 'pi' || v === 'codex';
+}
+function textOrNull(v: unknown, max: number): v is string | null {
+  return v === null || (typeof v === 'string' && v.length <= max);
 }
 
 /** The same rules the native side enforces, so the form can say what is wrong before a round trip. */
@@ -58,7 +61,8 @@ export function isAgentResume(v: unknown): v is AgentResume {
 export function isAgentLink(v: unknown): v is AgentLink {
   if (!record(v) || !agentName(v.agent)) return false;
   if (v.state === 'pending') return Object.keys(v).length === 2;
-  return v.state === 'linked' && typeof v.source === 'string' && sourcePattern.test(v.source) && Object.keys(v).length === 3;
+  return v.state === 'linked' && typeof v.source === 'string' && sourcePattern.test(v.source) && Object.keys(v).length === 5 &&
+    textOrNull(v.model, 100) && textOrNull(v.task, 200);
 }
 
 export function createAgentClient(call: Invoke) {

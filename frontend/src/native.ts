@@ -21,6 +21,9 @@ async function command<T>(name: string, args?: Record<string, unknown>): Promise
   }
 }
 export const runtimeInfo = () => command<RuntimeInfo>('get_runtime_info');
+export const ownerName = async (): Promise<string> => {
+  try { return await invoke<string>('owner_name'); } catch { return ''; }
+};
 export const resetWindow = () => command<void>('reset_window');
 export const setAppearance = (appearance: WindowAppearance) => command<void>('set_window_appearance', { appearance });
 export const openBackground = (kind: 'image' | 'video') => command<SelectedBackground>('open_background_file', { kind });

@@ -60,8 +60,8 @@
 </div>
 
 <style>
-  .menu { position: fixed; z-index: 80; display: flex; flex-direction: column; min-width: 12em; padding: 3px 0; background: var(--surface, #151e29); border: 1px solid var(--line, #344256); box-shadow: 0 10px 28px #000a; }
-  button { display: block; width: 100%; text-align: left; border: 0; background: transparent; color: var(--text, #e4ebf5); padding: .5em 1em; font-size: 12px; white-space: nowrap; }
-  button:hover:not(:disabled), button:focus-visible { background: var(--control, #1b2735); outline: none; box-shadow: inset 2px 0 #8abaff; }
-  button:disabled { color: var(--muted, #a5b3c6); cursor: default; }
+  .menu { position: fixed; z-index: 80; display: flex; flex-direction: column; min-width: 12em; padding: 3px 0; background: var(--surface, var(--surface)); border: 1px solid var(--line, var(--line)); box-shadow: none; }
+  button { display: block; width: 100%; text-align: left; border: 0; background: transparent; color: var(--text, var(--text)); padding: .5em 1em; font-size: 12px; white-space: nowrap; }
+  button:hover:not(:disabled), button:focus-visible { background: var(--control, var(--control)); outline: none; box-shadow: inset 2px 0 var(--accent, var(--accent)); }
+  button:disabled { color: var(--muted, var(--muted)); cursor: default; }
 </style>

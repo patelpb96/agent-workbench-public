@@ -34,30 +34,30 @@ test('the drop zone follows the pointer: near the top or bottom edge, otherwise 
   assert.equal(s.zoneAt(157, area), 'side');
 });
 
-test('the default grid is the module list, the workspace, a splitter and the sessions panel on one row', () => {
+test('the default grid puts Files on the left, the workspace next, then the splitter and the module list on the right', () => {
   const g = s.gridFor(s.defaultBars);
-  assert.equal(g.columns, '168px minmax(300px,1fr) 5px minmax(240px,var(--side-width))');
+  assert.equal(g.columns, 'minmax(240px,var(--side-width)) 5px minmax(300px,1fr) 168px');
   assert.equal(g.rows, 'minmax(0,1fr)');
-  assert.equal(g.rail.area, '1 / 1 / 2 / 2');
-  assert.equal(g.main, '1 / 2 / 2 / 3');
-  assert.equal(g.splitter, '1 / 3 / 2 / 4');
-  assert.equal(g.aside.area, '1 / 4 / 2 / 5');
+  assert.equal(g.aside.area, '1 / 1 / 2 / 2');
+  assert.equal(g.splitter, '1 / 2 / 2 / 3');
+  assert.equal(g.main, '1 / 3 / 2 / 4');
+  assert.equal(g.rail.area, '1 / 4 / 2 / 5');
 });
 
 test('a collapsed bar on its side is a slim strip and the workspace takes the freed width', () => {
   const rail = s.collapse(full);
   const g = s.gridFor({ rail, aside: s.collapse(s.collapse(full)) });
-  assert.equal(g.columns, '44px minmax(300px,1fr) 0px 24px');
+  assert.equal(g.columns, '24px 0px minmax(300px,1fr) 44px');
   assert.equal(g.splitter, null, 'no splitter when the sessions panel is collapsed');
 });
 
 test('a docked bar becomes a row above or below the workspace and its column closes', () => {
   const top = s.gridFor({ rail: s.dockTo(s.collapse(full), 'top'), aside: full });
-  assert.equal(top.columns, '0px minmax(300px,1fr) 5px minmax(240px,var(--side-width))');
+  assert.equal(top.columns, 'minmax(240px,var(--side-width)) 5px minmax(300px,1fr) 0px');
   assert.equal(top.rows, '44px minmax(0,1fr)');
   assert.equal(top.rail.area, '1 / 1 / 2 / 5');
   assert.equal(top.rail.horizontal, true);
-  assert.equal(top.main, '2 / 2 / 3 / 3');
+  assert.equal(top.main, '2 / 3 / 3 / 4');
   const both = s.gridFor({ rail: s.dockTo(s.collapse(s.collapse(full)), 'top'), aside: s.dockTo(s.collapse(full), 'bottom') });
   assert.equal(both.rows, '24px minmax(0,1fr) 44px');
   assert.equal(both.aside.area, '3 / 1 / 4 / 5');
@@ -83,17 +83,17 @@ test('dropping a full bar on the top or bottom edge collapses it to compact firs
   assert.deepEqual(s.dropOn(flat, 'side'), { stage: 'flat', dock: 'side' });
 });
 
-test('the module list can go on the right: the grid is mirrored and the panel takes the left', () => {
-  const g = s.gridFor(s.defaultBars, { side: 'right', panel: 'files' });
-  assert.equal(g.columns, 'minmax(240px,var(--side-width)) 5px minmax(300px,1fr) 168px');
-  assert.equal(g.aside.area, '1 / 1 / 2 / 2');
-  assert.equal(g.splitter, '1 / 2 / 2 / 3');
-  assert.equal(g.main, '1 / 3 / 2 / 4');
-  assert.equal(g.rail.area, '1 / 4 / 2 / 5');
+test('the module list can go on the left: the grid is mirrored and the panel takes the right', () => {
+  const g = s.gridFor(s.defaultBars, { side: 'left', panel: 'files' });
+  assert.equal(g.columns, '168px minmax(300px,1fr) 5px minmax(240px,var(--side-width))');
+  assert.equal(g.rail.area, '1 / 1 / 2 / 2');
+  assert.equal(g.main, '1 / 2 / 2 / 3');
+  assert.equal(g.splitter, '1 / 3 / 2 / 4');
+  assert.equal(g.aside.area, '1 / 4 / 2 / 5');
   // Docked bars still span the whole width.
-  const docked = s.gridFor({ rail: s.dockTo(s.collapse(full), 'top'), aside: full }, { side: 'right', panel: 'sessions' });
+  const docked = s.gridFor({ rail: s.dockTo(s.collapse(full), 'top'), aside: full }, { side: 'left', panel: 'sessions' });
   assert.equal(docked.rail.area, '1 / 1 / 2 / 5');
-  assert.equal(docked.columns, 'minmax(240px,var(--side-width)) 5px minmax(300px,1fr) 0px');
+  assert.equal(docked.columns, '0px minmax(300px,1fr) 5px minmax(240px,var(--side-width))');
 });
 
 test('a closed panel takes no room, not even when it was docked to an edge', () => {

@@ -34,7 +34,7 @@ test('launch and list replies are validated; anything else is refused', async ()
 
 test('a link is either pending or linked to an opaque 16-hex source, nothing else', async () => {
   assert.deepEqual(await clientWith({ state: 'pending', agent: 'pi' }).link('deadbeef'), { state: 'pending', agent: 'pi' });
-  const linked = { state: 'linked', agent: 'claude', source: '0123456789abcdef' };
+  const linked = { state: 'linked', agent: 'claude', source: '0123456789abcdef', model: 'claude-sonnet-5-5', task: 'Fix the files panel' };
   assert.deepEqual(await clientWith(linked).link('deadbeef'), linked);
   for (const bad of [{ state: 'linked', agent: 'claude' }, { state: 'linked', agent: 'claude', source: 'C:\\secret\\t.jsonl' }, { state: 'linked', agent: 'claude', source: '0123' },
     { state: 'pending', agent: 'claude', source: '0123456789abcdef' }, { state: 'done', agent: 'claude' }, { state: 'pending', agent: 'nope' }, null]) {

@@ -84,6 +84,24 @@ class ScannerTests(unittest.TestCase):
 
 
 class JevTests(unittest.TestCase):
+    def test_fingerprint_normalizes_newlines_not_content(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            feed, policy = root/'jev.py', root/'policy.py'
+            values = []
+            self.addCleanup(jev.fingerprint.cache_clear)
+            for newline in (b'\n', b'\r\n'):
+                feed.write_bytes(newline.join([b'feed', b'logic', b'']))
+                policy.write_bytes(newline.join([b'policy', b'rules', b'']))
+                with patch.object(jev, '__file__', str(feed)):
+                    jev.fingerprint.cache_clear()
+                    values.append(jev.fingerprint())
+            self.assertEqual(*values)
+            policy.write_bytes(b'changed logic\n')
+            with patch.object(jev, '__file__', str(feed)):
+                jev.fingerprint.cache_clear()
+                self.assertNotEqual(values[0], jev.fingerprint())
+
     def row(self, text='ordinary code', line=1):
         return {'id': 'row'+str(line), 'path': 'a.txt', 'line': line, 'text': text, 'context': [text],
                 'file_sha256': 'f'*64, 'line_sha256': scan.sha(text), 'withheld': False}
@@ -251,6 +269,31 @@ class LunaTests(unittest.TestCase):
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_only_the_acknowledged_owner_is_tolerated_in_the_remote_url(self):
+        """The remote URL legitimately names an attributable owner; nothing else may."""
+        import inspect
+
+        from tools.public_release import release as module
+        source = inspect.getsource(module.verify_git)
+        self.assertIn("approved_owner", inspect.signature(module.verify_git).parameters)
+        self.assertIn("text_findings(\"git-metadata\", metadata, profile)", source,
+                      "metadata is still scanned after the acknowledgement")
+        self.assertIn("<approved-owner>", source, "only the URL form is redacted")
+
+    def test_identifiable_owner_needs_an_explicit_acknowledgement(self):
+        """Ownership anonymity was the default; attribution must be a recorded choice."""
+        import inspect
+
+        from tools.public_release import release as module
+        signature = inspect.signature(module.push_public)
+        self.assertIn("identifiable_owner", signature.parameters)
+        self.assertIs(signature.parameters["identifiable_owner"].default, False,
+                      "an identifiable owner must never be the default")
+        source = inspect.getsource(module.push_public)
+        self.assertIn("--owner-is-identifiable", source)
+        self.assertIn("text_findings(\"owner\", owner, profile)", source,
+                      "the identity check must stay, not be deleted")
+
     def new_source(self,root):
         root.mkdir();env=release.anonymous_env()
         release.git(root,'-c','init.templateDir=','init','--initial-branch=dev',env=env)

@@ -1271,8 +1271,8 @@ test('scroll bars are square, thin and follow the theme, with hover and active s
     expect(s.radius).toBe('0px');
     expect(new Set([s.thumb, s.hover]).size, 'hover looks different from rest').toBe(2);
   }
-  expect(dark.track).toBe('rgb(14, 21, 29)');
-  expect(light.track).toBe('rgb(228, 234, 241)');
+  expect(dark.track).toBe('rgb(7, 9, 10)');
+  expect(light.track).toBe('rgb(232, 231, 221)');
   expect(contrast.track).toBe('rgb(0, 0, 0)');
   expect(contrast.thumb).toBe('rgb(255, 255, 255)');
   expect(new Set([dark.thumb, light.thumb, contrast.thumb]).size).toBe(3);
