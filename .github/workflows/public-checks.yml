@@ -1,0 +1,28 @@
+name: Public source checks
+on:
+  push:
+    branches: [public]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  offline-and-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: python -m unittest tools.public_release.test_public_release -v
+      - run: npm --prefix frontend ci --ignore-scripts
+      - run: node tools/frontend-tests/run.mjs
+      - run: npm --prefix frontend run build
+# Native Windows checks, private identity scans and final media/history approvals
+# are separate release gates. No provider key, publishing token or deployment here.

@@ -1,0 +1,35 @@
+# Local secrets and runtime state; example configuration can be versioned.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.sqlite
+*.sqlite3
+*.sqlite-*
+*.sqlite3-*
+*.db
+*.db-*
+*.log
+
+# Generated dependencies, builds, local agent sessions, and parallel worktrees.
+node_modules/
+.npm-cache/
+.venv/
+__pycache__/
+*.py[cod]
+/src-tauri/target/
+/src-tauri/gen/
+/frontend/dist/
+/.worktrees/
+/.pi/sessions/
+/.pi/state/
+/artifacts/
+
+# OS/editor scratch files.
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp

@@ -1,0 +1,37 @@
+[package]
+name = "agent-workbench"
+version = "0.1.0"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[dependencies]
+tauri = { version = "2", features = ["image-png"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "=0.4.45", default-features = false, features = ["std"] }
+rusqlite = { version = "=0.37.0", features = ["bundled"] }
+fs2 = "=0.4.3"
+rfd = "0.15"
+uuid = { version = "1", features = ["v4"] }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp"] }
+
+[target.'cfg(windows)'.dependencies]
+wb-session = { path = "../crates/wb-session" }
+wb-observe = { path = "../crates/wb-observe" }
+sha2 = "=0.10.9"
+windows-sys = { version = "=0.61.2", features = ["Win32_Foundation", "Win32_Graphics_Gdi", "Win32_UI_HiDpi", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_Security", "Win32_Storage_FileSystem", "Win32_System_IO", "Win32_System_JobObjects", "Win32_System_LibraryLoader", "Win32_System_Pipes", "Win32_System_Registry", "Win32_System_Threading"] }
+
+[[test]]
+name = "codex_process"
+path = "tests/codex_process.rs"
+harness = false
+
+[[test]]
+name = "single_instance"
+path = "tests/single_instance.rs"

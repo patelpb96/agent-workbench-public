@@ -1,0 +1,19 @@
+{
+  "layout_version": 1,
+  "workspace_id": "00000000-0000-4000-8000-000000000001",
+  "revision": 1,
+  "theme": "dark",
+  "active_module": "agents",
+  "sidebar_width": 300,
+  "panels": [
+    {
+      "panel_id": "00000000-0000-4000-8000-000000000007",
+      "session_id": "00000000-0000-4000-8000-000000000002",
+      "container_id": null,
+      "stage": "full",
+      "geometry": {"x": 48, "y": 64, "width": 460, "height": 350},
+      "expanded_geometry": {"x": 48, "y": 64, "width": 460, "height": 350}
+    }
+  ],
+  "containers": []
+}

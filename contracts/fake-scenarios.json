@@ -1,0 +1,31 @@
+{
+  "fixture_version": 1,
+  "base_time": "2026-10-19T19:00:00.000Z",
+  "step_ms": 10,
+  "cases": [
+    {
+      "name": "fake-success", "scenario": "success",
+      "steps": [
+        {"state": "queued"}, {"state": "starting"}, {"state": "running"},
+        {"kind": "text_delta", "payload": {"stream": "assistant", "text": "SIMULATED: streamed response from the local fake provider."}},
+        {"kind": "usage_updated", "payload": {"input_tokens": null, "output_tokens": null, "estimated": false}},
+        {"state": "succeeded"}
+      ]
+    },
+    {
+      "name": "fake-cancelled", "scenario": "wait_for_cancel",
+      "steps": [{"state": "queued"}, {"state": "starting"}, {"state": "running"}, {"state": "cancel_requested"}, {"state": "cancelled"}]
+    },
+    {
+      "name": "fake-recovered", "scenario": "restart_recovery",
+      "steps": [{"state": "queued"}, {"state": "starting"}, {"state": "running"}, {"recover": true, "at_ms": 60000}]
+    },
+    {
+      "name": "fake-failed", "scenario": "failure",
+      "steps": [
+        {"state": "queued"}, {"state": "starting"},
+        {"state": "failed", "error": {"code": "fake_start_failed", "user_message": "SIMULATED startup failure; no child was launched.", "recoverable": true}}
+      ]
+    }
+  ]
+}

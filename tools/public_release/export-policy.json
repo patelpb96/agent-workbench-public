@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "include": [
+    ".gitignore", "PUBLIC_README.md", "contracts/**", "crates/**", "frontend/**", "src-tauri/**",
+    "tools/public-check-all.mjs", "tools/build-release.mjs", "tools/make-icons.mjs",
+    "tools/audit-hardening.mjs", "tools/promote-stable*", "tools/contract-tests/**",
+    "tools/frontend-tests/**", "tools/headless-tests/**", "tools/public_release/**",
+    "skills/private-to-public/**", "docs/public/**", "docs/assets/public/**",
+    ".github/workflows/public-checks.yml"
+  ],
+  "exclude": ["**/target/**", "**/node_modules/**", "**/dist/**", "**/__pycache__/**", "**/*.pyc"],
+  "rename": {"PUBLIC_README.md": "README.md"}
+}

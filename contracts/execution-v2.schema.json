@@ -1,0 +1,1665 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agent-workbench:execution:v2",
+  "title": "Execution v2: bounded Codex text profile and simulated runs",
+  "$comment": "Unwired v2 domain candidate. Strict native semantics supplement JSON shapes. Original v1 schema is preserved; no production migration or dispatch is enabled by these types.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/run_event"
+    },
+    {
+      "$ref": "#/$defs/run_snapshot"
+    },
+    {
+      "$ref": "#/$defs/layout"
+    }
+  ],
+  "x-run-transitions": {
+    "queued": [
+      "starting",
+      "cancelled",
+      "interrupted"
+    ],
+    "starting": [
+      "running",
+      "failed",
+      "cancel_requested",
+      "interrupted"
+    ],
+    "running": [
+      "waiting_input",
+      "waiting_approval",
+      "cancel_requested",
+      "succeeded",
+      "failed",
+      "interrupted"
+    ],
+    "waiting_input": [
+      "running",
+      "cancel_requested",
+      "failed",
+      "interrupted"
+    ],
+    "waiting_approval": [
+      "running",
+      "cancel_requested",
+      "failed",
+      "interrupted"
+    ],
+    "cancel_requested": [
+      "cancelled",
+      "failed",
+      "interrupted"
+    ],
+    "succeeded": [],
+    "failed": [],
+    "cancelled": [],
+    "interrupted": []
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$",
+      "maxLength": 40
+    },
+    "counter": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "provider_id": {
+      "enum": [
+        "fake",
+        "codex"
+      ]
+    },
+    "run_state": {
+      "enum": [
+        "queued",
+        "starting",
+        "running",
+        "waiting_input",
+        "waiting_approval",
+        "cancel_requested",
+        "succeeded",
+        "failed",
+        "cancelled",
+        "interrupted"
+      ]
+    },
+    "active_state": {
+      "enum": [
+        "queued",
+        "starting",
+        "running",
+        "waiting_input",
+        "waiting_approval",
+        "cancel_requested"
+      ]
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "user_message",
+        "recoverable"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "user_message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "recoverable": {
+          "type": "boolean"
+        }
+      }
+    },
+    "run_event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "event_id",
+        "workspace_id",
+        "session_id",
+        "run_id",
+        "provider_id",
+        "source",
+        "seq",
+        "occurred_at",
+        "kind",
+        "payload"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "event_id": {
+          "$ref": "#/$defs/id"
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "run_id": {
+          "$ref": "#/$defs/id"
+        },
+        "provider_id": {
+          "$ref": "#/$defs/provider_id"
+        },
+        "source": {
+          "$ref": "#/$defs/event_source"
+        },
+        "seq": {
+          "$ref": "#/$defs/sequence"
+        },
+        "occurred_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "kind": {
+          "enum": [
+            "run_created",
+            "run_state_changed",
+            "text_delta",
+            "tool_activity",
+            "output_truncated",
+            "run_recovered",
+            "usage_updated"
+          ]
+        },
+        "payload": {
+          "type": "object"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "run_created"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/run_created_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "run_state_changed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/run_state_changed_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "text_delta"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/text_delta_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "tool_activity"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/tool_activity_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "output_truncated"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/output_truncated_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "run_recovered"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/run_recovered_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "usage_updated"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/usage"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "provider_id": {
+                "const": "fake"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source": {
+                "enum": [
+                  "fixture",
+                  "system"
+                ]
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "source": {
+                "enum": [
+                  "provider",
+                  "system"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "run_created"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "seq": {
+                "const": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "run_recovered"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source": {
+                "const": "system"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "run_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "workspace_id",
+        "session_id",
+        "run_id",
+        "provider_id",
+        "state",
+        "last_seq",
+        "created_at",
+        "updated_at",
+        "usage",
+        "terminal_error",
+        "enqueue_order",
+        "profile_id",
+        "model_id"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "run_id": {
+          "$ref": "#/$defs/id"
+        },
+        "provider_id": {
+          "$ref": "#/$defs/provider_id"
+        },
+        "state": {
+          "$ref": "#/$defs/run_state"
+        },
+        "last_seq": {
+          "$ref": "#/$defs/sequence"
+        },
+        "created_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "updated_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "usage": {
+          "$ref": "#/$defs/usage"
+        },
+        "terminal_error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/error"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "enqueue_order": {
+          "$ref": "#/$defs/sequence"
+        },
+        "profile_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/codex_profile_id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "model_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/codex_model_id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "geometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
+      "properties": {
+        "x": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "width": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 100000
+        },
+        "height": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 100000
+        }
+      }
+    },
+    "layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "layout_version",
+        "workspace_id",
+        "revision",
+        "theme",
+        "active_module",
+        "sidebar_width",
+        "panels",
+        "containers"
+      ],
+      "properties": {
+        "layout_version": {
+          "const": 1
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/id"
+        },
+        "revision": {
+          "$ref": "#/$defs/counter"
+        },
+        "theme": {
+          "$ref": "#/$defs/theme_name"
+        },
+        "active_module": {
+          "$ref": "#/$defs/module_name"
+        },
+        "sidebar_width": {
+          "type": "number",
+          "minimum": 240,
+          "maximum": 440
+        },
+        "panels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/panel_layout"
+          },
+          "maxItems": 16
+        },
+        "containers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/container_layout"
+          },
+          "maxItems": 8
+        }
+      }
+    },
+    "fake_scenario": {
+      "enum": [
+        "success",
+        "failure",
+        "wait_for_cancel"
+      ]
+    },
+    "command_name": {
+      "enum": [
+        "create_session_v2",
+        "start_fake_run_v2",
+        "start_codex_run_v2",
+        "cancel_run_v2",
+        "save_layout_v2"
+      ]
+    },
+    "module_name": {
+      "enum": [
+        "agents",
+        "tasks",
+        "usage",
+        "approvals",
+        "diagnostics"
+      ]
+    },
+    "theme_name": {
+      "enum": [
+        "dark",
+        "light",
+        "system",
+        "contrast"
+      ]
+    },
+    "panel_stage": {
+      "enum": [
+        "full",
+        "compact",
+        "block"
+      ]
+    },
+    "event_source": {
+      "enum": [
+        "fixture",
+        "provider",
+        "system"
+      ]
+    },
+    "text_stream": {
+      "enum": [
+        "assistant",
+        "stderr"
+      ]
+    },
+    "tool_status": {
+      "enum": [
+        "started",
+        "completed",
+        "failed"
+      ]
+    },
+    "truncation_scope": {
+      "enum": [
+        "pending_bytes",
+        "persisted_text_bytes",
+        "event_count"
+      ]
+    },
+    "usage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input_tokens",
+        "output_tokens",
+        "estimated",
+        "cached_input_tokens",
+        "cache_write_input_tokens",
+        "reasoning_output_tokens"
+      ],
+      "properties": {
+        "input_tokens": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/counter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "output_tokens": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/counter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "estimated": {
+          "type": "boolean"
+        },
+        "cached_input_tokens": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/counter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cache_write_input_tokens": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/counter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reasoning_output_tokens": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/counter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "run_created_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "queued"
+          ]
+        }
+      }
+    },
+    "run_state_changed_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "from",
+        "to",
+        "error"
+      ],
+      "properties": {
+        "from": {
+          "$ref": "#/$defs/run_state"
+        },
+        "to": {
+          "$ref": "#/$defs/run_state"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/error"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "text_delta_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stream",
+        "text"
+      ],
+      "properties": {
+        "stream": {
+          "$ref": "#/$defs/text_stream"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16384
+        }
+      }
+    },
+    "tool_activity_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tool_call_id",
+        "title",
+        "status"
+      ],
+      "properties": {
+        "tool_call_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "status": {
+          "$ref": "#/$defs/tool_status"
+        }
+      }
+    },
+    "output_truncated_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "discarded_bytes",
+        "discarded_events"
+      ],
+      "properties": {
+        "scope": {
+          "$ref": "#/$defs/truncation_scope"
+        },
+        "discarded_bytes": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/counter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "discarded_events": {
+          "$ref": "#/$defs/counter"
+        }
+      }
+    },
+    "run_recovered_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "previous_state",
+        "state"
+      ],
+      "properties": {
+        "previous_state": {
+          "$ref": "#/$defs/active_state"
+        },
+        "state": {
+          "enum": [
+            "interrupted"
+          ]
+        }
+      }
+    },
+    "event_header": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "event_id",
+        "workspace_id",
+        "session_id",
+        "run_id",
+        "provider_id",
+        "source",
+        "seq",
+        "occurred_at"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "event_id": {
+          "$ref": "#/$defs/id"
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "run_id": {
+          "$ref": "#/$defs/id"
+        },
+        "provider_id": {
+          "$ref": "#/$defs/provider_id"
+        },
+        "source": {
+          "$ref": "#/$defs/event_source"
+        },
+        "seq": {
+          "$ref": "#/$defs/sequence"
+        },
+        "occurred_at": {
+          "$ref": "#/$defs/timestamp"
+        }
+      }
+    },
+    "workspace_snapshot_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workspace_id",
+        "label",
+        "created_at"
+      ],
+      "properties": {
+        "workspace_id": {
+          "$ref": "#/$defs/id"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "created_at": {
+          "$ref": "#/$defs/timestamp"
+        }
+      }
+    },
+    "session_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "workspace_id",
+        "session_id",
+        "provider_id",
+        "label",
+        "created_at"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "provider_id": {
+          "$ref": "#/$defs/provider_id"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "created_at": {
+          "$ref": "#/$defs/timestamp"
+        }
+      }
+    },
+    "panel_layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "panel_id",
+        "session_id",
+        "container_id",
+        "stage",
+        "geometry",
+        "expanded_geometry"
+      ],
+      "properties": {
+        "panel_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "container_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "stage": {
+          "$ref": "#/$defs/panel_stage"
+        },
+        "geometry": {
+          "$ref": "#/$defs/geometry"
+        },
+        "expanded_geometry": {
+          "$ref": "#/$defs/geometry"
+        }
+      }
+    },
+    "container_layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "container_id",
+        "geometry"
+      ],
+      "properties": {
+        "container_id": {
+          "$ref": "#/$defs/id"
+        },
+        "geometry": {
+          "$ref": "#/$defs/geometry"
+        }
+      }
+    },
+    "workspace_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "workspace",
+        "sessions",
+        "runs",
+        "layout",
+        "layout_warning",
+        "execution_available",
+        "codex_availability"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "workspace": {
+          "$ref": "#/$defs/workspace_snapshot_record"
+        },
+        "sessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/session_snapshot"
+          },
+          "maxItems": 16
+        },
+        "runs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/run_snapshot"
+          },
+          "maxItems": 200
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/layout"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "layout_warning": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/error"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "execution_available": {
+          "type": "boolean"
+        },
+        "codex_availability": {
+          "$ref": "#/$defs/codex_availability"
+        }
+      }
+    },
+    "bootstrap_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        }
+      }
+    },
+    "workspace_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "workspace_id"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/id"
+        }
+      }
+    },
+    "create_session_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "workspace_id",
+        "request_id",
+        "label",
+        "provider_id"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/id"
+        },
+        "request_id": {
+          "$ref": "#/$defs/id"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "provider_id": {
+          "$ref": "#/$defs/provider_id"
+        }
+      }
+    },
+    "start_fake_run_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "workspace_id",
+        "session_id",
+        "request_id",
+        "provider_id",
+        "prompt",
+        "scenario"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "request_id": {
+          "$ref": "#/$defs/id"
+        },
+        "provider_id": {
+          "$ref": "#/$defs/provider_id"
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "scenario": {
+          "$ref": "#/$defs/fake_scenario"
+        }
+      }
+    },
+    "cancel_run_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "workspace_id",
+        "run_id",
+        "request_id"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/id"
+        },
+        "run_id": {
+          "$ref": "#/$defs/id"
+        },
+        "request_id": {
+          "$ref": "#/$defs/id"
+        }
+      }
+    },
+    "event_page_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "workspace_id",
+        "run_id",
+        "after_seq",
+        "through_seq",
+        "limit"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/id"
+        },
+        "run_id": {
+          "$ref": "#/$defs/id"
+        },
+        "after_seq": {
+          "$ref": "#/$defs/counter"
+        },
+        "through_seq": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/counter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        }
+      }
+    },
+    "event_page": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "workspace_id",
+        "run_id",
+        "events",
+        "last_seq",
+        "through_seq",
+        "next_after_seq",
+        "has_more"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/id"
+        },
+        "run_id": {
+          "$ref": "#/$defs/id"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/run_event"
+          },
+          "maxItems": 200
+        },
+        "last_seq": {
+          "$ref": "#/$defs/counter"
+        },
+        "through_seq": {
+          "$ref": "#/$defs/counter"
+        },
+        "next_after_seq": {
+          "$ref": "#/$defs/counter"
+        },
+        "has_more": {
+          "type": "boolean"
+        }
+      }
+    },
+    "save_layout_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "workspace_id",
+        "request_id",
+        "expected_revision",
+        "layout"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/id"
+        },
+        "request_id": {
+          "$ref": "#/$defs/id"
+        },
+        "expected_revision": {
+          "$ref": "#/$defs/counter"
+        },
+        "layout": {
+          "$ref": "#/$defs/layout"
+        }
+      }
+    },
+    "create_session_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "session",
+        "replayed"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "session": {
+          "$ref": "#/$defs/session_snapshot"
+        },
+        "replayed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "start_fake_run_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "run",
+        "replayed"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "run": {
+          "$ref": "#/$defs/run_snapshot"
+        },
+        "replayed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "cancel_run_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "run",
+        "replayed"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "run": {
+          "$ref": "#/$defs/run_snapshot"
+        },
+        "replayed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "save_layout_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "layout",
+        "replayed"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "layout": {
+          "$ref": "#/$defs/layout"
+        },
+        "replayed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "execution_changed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "workspace_id"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/id"
+        }
+      }
+    },
+    "codex_profile_id": {
+      "enum": [
+        "codex_text_v1",
+        "codex_text_v2"
+      ]
+    },
+    "codex_model_id": {
+      "enum": [
+        "gpt-6.1-sol"
+      ]
+    },
+    "codex_availability": {
+      "enum": [
+        "not_configured",
+        "ready",
+        "quarantined",
+        "unsupported_platform"
+      ]
+    },
+    "start_codex_run_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "workspace_id",
+        "session_id",
+        "request_id",
+        "prompt",
+        "profile_id",
+        "confirmed"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "request_id": {
+          "$ref": "#/$defs/id"
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "profile_id": {
+          "$ref": "#/$defs/codex_profile_id"
+        },
+        "confirmed": {
+          "const": true
+        },
+        "context_run_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 6,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "profile_id": {
+                "const": "codex_text_v2"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "context_run_ids"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "context_run_ids"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "preview_codex_context_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "workspace_id",
+        "session_id",
+        "prompt",
+        "context_run_ids"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/id"
+        },
+        "session_id": {
+          "$ref": "#/$defs/id"
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "context_run_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 6,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        }
+      }
+    },
+    "codex_context_preview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "workspace_id",
+        "text",
+        "bytes",
+        "carried",
+        "trimmed"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/id"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8192
+        },
+        "carried": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 6
+        },
+        "trimmed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "start_codex_run_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "run",
+        "replayed"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "run": {
+          "$ref": "#/$defs/run_snapshot"
+        },
+        "replayed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "storage_state": {
+      "enum": [
+        "upgrade_required",
+        "ready"
+      ]
+    },
+    "bootstrap_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "storage_state",
+        "upgrade_id",
+        "snapshot"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "storage_state": {
+          "$ref": "#/$defs/storage_state"
+        },
+        "upgrade_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "snapshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/workspace_snapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "confirm_upgrade_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "upgrade_id",
+        "request_id",
+        "confirmed"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "upgrade_id": {
+          "$ref": "#/$defs/id"
+        },
+        "request_id": {
+          "$ref": "#/$defs/id"
+        },
+        "confirmed": {
+          "const": true
+        }
+      }
+    },
+    "confirm_upgrade_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "snapshot",
+        "replayed"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": 2
+        },
+        "snapshot": {
+          "$ref": "#/$defs/workspace_snapshot"
+        },
+        "replayed": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "x-event-variants": {
+    "run_created": "run_created_payload",
+    "run_state_changed": "run_state_changed_payload",
+    "text_delta": "text_delta_payload",
+    "tool_activity": "tool_activity_payload",
+    "output_truncated": "output_truncated_payload",
+    "run_recovered": "run_recovered_payload",
+    "usage_updated": "usage"
+  },
+  "x-limits": {
+    "prompt_bytes": 65536,
+    "text_delta_bytes": 16384,
+    "event_bytes": 20480,
+    "pending_bytes": 1048576,
+    "persisted_text_bytes": 10485760,
+    "ordinary_events": 20000,
+    "reserved_events": 32,
+    "workspace_sessions": 16,
+    "workspace_runs": 200,
+    "queued_runs": 32,
+    "page_events": 200,
+    "nontext_event_bytes": 16384,
+    "command_receipts": 4096,
+    "command_mailbox": 64,
+    "control_mailbox": 8,
+    "control_pending_bytes": 524288,
+    "frontend_text_bytes": 1048576,
+    "visible_events": 200,
+    "cancel_receipts": 33,
+    "codex_prompt_bytes": 1024,
+    "codex_completion_chunk_bytes": 2048,
+    "codex_message_bytes": 16384,
+    "codex_context_runs": 6,
+    "codex_context_bytes": 8192
+  },
+  "x-notification": "execution_changed_v2",
+  "x-profile": {
+    "id": "codex_text_v1",
+    "model": "gpt-6.1-sol",
+    "tools": false,
+    "project_access": false,
+    "resume": false
+  },
+  "x-profile-v2": {
+    "id": "codex_text_v2",
+    "model": "gpt-6.1-sol",
+    "tools": false,
+    "project_access": false,
+    "resume": false,
+    "carried_context": "same-session succeeded runs, composed by the app, never resumed from Codex"
+  }
+}

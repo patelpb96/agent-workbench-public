@@ -1,0 +1,473 @@
+{
+  "cases": [
+    {
+      "definition": "bootstrap_request",
+      "value": {
+        "contract_version": 1
+      }
+    },
+    {
+      "definition": "workspace_request",
+      "value": {
+        "contract_version": 1,
+        "workspace_id": "00000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "definition": "workspace_snapshot",
+      "value": {
+        "contract_version": 1,
+        "workspace": {
+          "workspace_id": "00000000-0000-4000-8000-000000000001",
+          "label": "Simulated workspace",
+          "created_at": "2026-10-19T19:00:00.000Z"
+        },
+        "sessions": [
+          {
+            "contract_version": 1,
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "session_id": "00000000-0000-4000-8000-000000000002",
+            "provider_id": "fake",
+            "label": "SIMULATED session",
+            "created_at": "2026-10-19T19:00:00.000Z"
+          }
+        ],
+        "runs": [
+          {
+            "contract_version": 1,
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "session_id": "00000000-0000-4000-8000-000000000002",
+            "run_id": "00000000-0000-4000-8000-000000000003",
+            "provider_id": "fake",
+            "state": "succeeded",
+            "last_seq": 6,
+            "created_at": "2026-10-19T19:00:00.000Z",
+            "updated_at": "2026-10-19T19:00:00.050Z",
+            "usage": {
+              "input_tokens": null,
+              "output_tokens": null,
+              "estimated": false
+            },
+            "terminal_error": null,
+            "enqueue_order": 1
+          },
+          {
+            "contract_version": 1,
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "session_id": "00000000-0000-4000-8000-000000000002",
+            "run_id": "00000000-0000-4000-8000-000000000004",
+            "provider_id": "fake",
+            "state": "cancelled",
+            "last_seq": 5,
+            "created_at": "2026-10-19T19:00:00.000Z",
+            "updated_at": "2026-10-19T19:00:00.040Z",
+            "usage": {
+              "input_tokens": null,
+              "output_tokens": null,
+              "estimated": false
+            },
+            "terminal_error": null,
+            "enqueue_order": 2
+          },
+          {
+            "contract_version": 1,
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "session_id": "00000000-0000-4000-8000-000000000002",
+            "run_id": "00000000-0000-4000-8000-000000000005",
+            "provider_id": "fake",
+            "state": "interrupted",
+            "last_seq": 4,
+            "created_at": "2026-10-19T19:00:00.000Z",
+            "updated_at": "2026-10-19T19:01:00.000Z",
+            "usage": {
+              "input_tokens": null,
+              "output_tokens": null,
+              "estimated": false
+            },
+            "terminal_error": null,
+            "enqueue_order": 3
+          },
+          {
+            "contract_version": 1,
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "session_id": "00000000-0000-4000-8000-000000000002",
+            "run_id": "00000000-0000-4000-8000-000000000006",
+            "provider_id": "fake",
+            "state": "failed",
+            "last_seq": 3,
+            "created_at": "2026-10-19T19:00:00.000Z",
+            "updated_at": "2026-10-19T19:00:00.020Z",
+            "usage": {
+              "input_tokens": null,
+              "output_tokens": null,
+              "estimated": false
+            },
+            "terminal_error": {
+              "code": "fake_start_failed",
+              "user_message": "SIMULATED startup failure; no child was launched.",
+              "recoverable": true
+            },
+            "enqueue_order": 4
+          }
+        ],
+        "layout": {
+          "layout_version": 1,
+          "workspace_id": "00000000-0000-4000-8000-000000000001",
+          "revision": 1,
+          "theme": "dark",
+          "active_module": "agents",
+          "sidebar_width": 300,
+          "panels": [
+            {
+              "panel_id": "00000000-0000-4000-8000-000000000007",
+              "session_id": "00000000-0000-4000-8000-000000000002",
+              "container_id": null,
+              "stage": "full",
+              "geometry": {
+                "x": 48,
+                "y": 64,
+                "width": 460,
+                "height": 350
+              },
+              "expanded_geometry": {
+                "x": 48,
+                "y": 64,
+                "width": 460,
+                "height": 350
+              }
+            }
+          ],
+          "containers": []
+        },
+        "layout_warning": null,
+        "execution_available": true
+      }
+    },
+    {
+      "definition": "create_session_request",
+      "value": {
+        "contract_version": 1,
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "request_id": "00000000-0000-4000-8000-0000000003e9",
+        "label": "SIMULATED session"
+      }
+    },
+    {
+      "definition": "create_session_response",
+      "value": {
+        "contract_version": 1,
+        "session": {
+          "contract_version": 1,
+          "workspace_id": "00000000-0000-4000-8000-000000000001",
+          "session_id": "00000000-0000-4000-8000-000000000002",
+          "provider_id": "fake",
+          "label": "SIMULATED session",
+          "created_at": "2026-10-19T19:00:00.000Z"
+        },
+        "replayed": false
+      }
+    },
+    {
+      "definition": "start_fake_run_request",
+      "value": {
+        "contract_version": 1,
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "session_id": "00000000-0000-4000-8000-000000000002",
+        "request_id": "00000000-0000-4000-8000-0000000003ea",
+        "provider_id": "fake",
+        "prompt": "Simulated input only.",
+        "scenario": "success"
+      }
+    },
+    {
+      "definition": "start_fake_run_response",
+      "value": {
+        "contract_version": 1,
+        "run": {
+          "contract_version": 1,
+          "workspace_id": "00000000-0000-4000-8000-000000000001",
+          "session_id": "00000000-0000-4000-8000-000000000002",
+          "run_id": "00000000-0000-4000-8000-000000000003",
+          "provider_id": "fake",
+          "state": "queued",
+          "last_seq": 1,
+          "created_at": "2026-10-19T19:00:00.000Z",
+          "updated_at": "2026-10-19T19:00:00.000Z",
+          "usage": {
+            "input_tokens": null,
+            "output_tokens": null,
+            "estimated": false
+          },
+          "terminal_error": null,
+          "enqueue_order": 1
+        },
+        "replayed": false
+      }
+    },
+    {
+      "definition": "cancel_run_request",
+      "value": {
+        "contract_version": 1,
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "run_id": "00000000-0000-4000-8000-000000000004",
+        "request_id": "00000000-0000-4000-8000-0000000003eb"
+      }
+    },
+    {
+      "definition": "cancel_run_response",
+      "value": {
+        "contract_version": 1,
+        "run": {
+          "contract_version": 1,
+          "workspace_id": "00000000-0000-4000-8000-000000000001",
+          "session_id": "00000000-0000-4000-8000-000000000002",
+          "run_id": "00000000-0000-4000-8000-000000000004",
+          "provider_id": "fake",
+          "state": "cancelled",
+          "last_seq": 5,
+          "created_at": "2026-10-19T19:00:00.000Z",
+          "updated_at": "2026-10-19T19:00:00.040Z",
+          "usage": {
+            "input_tokens": null,
+            "output_tokens": null,
+            "estimated": false
+          },
+          "terminal_error": null,
+          "enqueue_order": 2
+        },
+        "replayed": false
+      }
+    },
+    {
+      "definition": "event_page_request",
+      "value": {
+        "contract_version": 1,
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "run_id": "00000000-0000-4000-8000-000000000003",
+        "after_seq": 0,
+        "through_seq": null,
+        "limit": 200
+      }
+    },
+    {
+      "definition": "event_page",
+      "value": {
+        "contract_version": 1,
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "run_id": "00000000-0000-4000-8000-000000000003",
+        "events": [
+          {
+            "contract_version": 1,
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "session_id": "00000000-0000-4000-8000-000000000002",
+            "run_id": "00000000-0000-4000-8000-000000000003",
+            "provider_id": "fake",
+            "event_id": "00000001-0000-4000-8000-000000000001",
+            "source": "fixture",
+            "seq": 1,
+            "occurred_at": "2026-10-19T19:00:00.000Z",
+            "kind": "run_created",
+            "payload": {
+              "state": "queued"
+            }
+          },
+          {
+            "contract_version": 1,
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "session_id": "00000000-0000-4000-8000-000000000002",
+            "run_id": "00000000-0000-4000-8000-000000000003",
+            "provider_id": "fake",
+            "event_id": "00000001-0000-4000-8000-000000000002",
+            "source": "fixture",
+            "seq": 2,
+            "occurred_at": "2026-10-19T19:00:00.010Z",
+            "kind": "run_state_changed",
+            "payload": {
+              "from": "queued",
+              "to": "starting",
+              "error": null
+            }
+          },
+          {
+            "contract_version": 1,
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "session_id": "00000000-0000-4000-8000-000000000002",
+            "run_id": "00000000-0000-4000-8000-000000000003",
+            "provider_id": "fake",
+            "event_id": "00000001-0000-4000-8000-000000000003",
+            "source": "fixture",
+            "seq": 3,
+            "occurred_at": "2026-10-19T19:00:00.020Z",
+            "kind": "run_state_changed",
+            "payload": {
+              "from": "starting",
+              "to": "running",
+              "error": null
+            }
+          },
+          {
+            "contract_version": 1,
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "session_id": "00000000-0000-4000-8000-000000000002",
+            "run_id": "00000000-0000-4000-8000-000000000003",
+            "provider_id": "fake",
+            "event_id": "00000001-0000-4000-8000-000000000004",
+            "source": "fixture",
+            "seq": 4,
+            "occurred_at": "2026-10-19T19:00:00.030Z",
+            "kind": "text_delta",
+            "payload": {
+              "stream": "assistant",
+              "text": "SIMULATED: streamed response from the local fake provider."
+            }
+          },
+          {
+            "contract_version": 1,
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "session_id": "00000000-0000-4000-8000-000000000002",
+            "run_id": "00000000-0000-4000-8000-000000000003",
+            "provider_id": "fake",
+            "event_id": "00000001-0000-4000-8000-000000000005",
+            "source": "fixture",
+            "seq": 5,
+            "occurred_at": "2026-10-19T19:00:00.040Z",
+            "kind": "usage_updated",
+            "payload": {
+              "input_tokens": null,
+              "output_tokens": null,
+              "estimated": false
+            }
+          },
+          {
+            "contract_version": 1,
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "session_id": "00000000-0000-4000-8000-000000000002",
+            "run_id": "00000000-0000-4000-8000-000000000003",
+            "provider_id": "fake",
+            "event_id": "00000001-0000-4000-8000-000000000006",
+            "source": "fixture",
+            "seq": 6,
+            "occurred_at": "2026-10-19T19:00:00.050Z",
+            "kind": "run_state_changed",
+            "payload": {
+              "from": "running",
+              "to": "succeeded",
+              "error": null
+            }
+          }
+        ],
+        "last_seq": 6,
+        "through_seq": 6,
+        "next_after_seq": 6,
+        "has_more": false
+      }
+    },
+    {
+      "definition": "save_layout_request",
+      "value": {
+        "contract_version": 1,
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "request_id": "00000000-0000-4000-8000-0000000003ec",
+        "expected_revision": 1,
+        "layout": {
+          "layout_version": 1,
+          "workspace_id": "00000000-0000-4000-8000-000000000001",
+          "revision": 1,
+          "theme": "dark",
+          "active_module": "agents",
+          "sidebar_width": 300,
+          "panels": [
+            {
+              "panel_id": "00000000-0000-4000-8000-000000000007",
+              "session_id": "00000000-0000-4000-8000-000000000002",
+              "container_id": null,
+              "stage": "full",
+              "geometry": {
+                "x": 48,
+                "y": 64,
+                "width": 460,
+                "height": 350
+              },
+              "expanded_geometry": {
+                "x": 48,
+                "y": 64,
+                "width": 460,
+                "height": 350
+              }
+            }
+          ],
+          "containers": []
+        }
+      }
+    },
+    {
+      "definition": "save_layout_response",
+      "value": {
+        "contract_version": 1,
+        "layout": {
+          "layout_version": 1,
+          "workspace_id": "00000000-0000-4000-8000-000000000001",
+          "revision": 2,
+          "theme": "dark",
+          "active_module": "agents",
+          "sidebar_width": 300,
+          "panels": [
+            {
+              "panel_id": "00000000-0000-4000-8000-000000000007",
+              "session_id": "00000000-0000-4000-8000-000000000002",
+              "container_id": null,
+              "stage": "full",
+              "geometry": {
+                "x": 48,
+                "y": 64,
+                "width": 460,
+                "height": 350
+              },
+              "expanded_geometry": {
+                "x": 48,
+                "y": 64,
+                "width": 460,
+                "height": 350
+              }
+            }
+          ],
+          "containers": []
+        },
+        "replayed": false
+      }
+    },
+    {
+      "definition": "execution_changed",
+      "value": {
+        "contract_version": 1,
+        "workspace_id": "00000000-0000-4000-8000-000000000001"
+      }
+    }
+  ],
+  "native_rejections": [
+    {
+      "value": {
+        "contract_version": 1,
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "session_id": "00000000-0000-4000-8000-000000000002",
+        "request_id": "00000000-0000-4000-8000-0000000003ea",
+        "provider_id": "codex",
+        "prompt": "Simulated input only.",
+        "scenario": "success"
+      },
+      "code": "provider_execution_disabled"
+    },
+    {
+      "value": {
+        "contract_version": 1,
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "session_id": "00000000-0000-4000-8000-000000000002",
+        "request_id": "00000000-0000-4000-8000-0000000003ea",
+        "provider_id": "claude",
+        "prompt": "Simulated input only.",
+        "scenario": "success"
+      },
+      "code": "provider_execution_disabled"
+    }
+  ]
+}
